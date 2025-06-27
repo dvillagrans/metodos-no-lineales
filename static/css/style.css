@@ -1,0 +1,368 @@
+/* Estilos personalizados para la aplicación de Optimización */
+
+:root {
+    --primary-color: #0d6efd;
+    --secondary-color: #6c757d;
+    --success-color: #198754;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --info-color: #0dcaf0;
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
+}
+
+/* Body y layout general */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    line-height: 1.6;
+}
+
+/* Header navigation */
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.navbar-nav .dropdown-menu {
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    border-radius: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.dropdown-item {
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.25rem;
+    margin: 0.125rem;
+}
+
+.dropdown-item:hover {
+    background-color: #e9ecef;
+    transform: translateX(5px);
+    transition: all 0.2s ease;
+}
+
+.dropdown-item.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Method cards en página principal */
+.method-card {
+    transition: all 0.3s ease;
+    border-radius: 1rem;
+}
+
+.method-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.method-icon {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem auto;
+    transition: all 0.3s ease;
+}
+
+.method-card:hover .method-icon {
+    transform: scale(1.1);
+}
+
+.mathematical-formula {
+    font-family: 'Times New Roman', serif;
+    font-style: italic;
+}
+
+/* Feature icons */
+.feature-icon {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.feature-icon:hover {
+    transform: scale(1.1);
+    background-color: #e9ecef !important;
+}
+
+/* Buttons */
+.btn {
+    border-radius: 0.5rem;
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Hero section */
+.bg-gradient {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #0056b3 100%);
+}
+
+/* Cards y contenedores */
+.card {
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.shadow-sm {
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.075) !important;
+}
+
+/* Form controls */
+.form-control,
+.form-select {
+    border-radius: 0.5rem;
+    border: 2px solid #e9ecef;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Tables */
+.table {
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.table thead th {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    font-weight: 600;
+}
+
+/* Charts containers */
+.chart-container {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    background: white;
+    border-radius: 1rem;
+    padding: 1rem;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.075);
+}
+
+/* Loading spinner */
+.spinner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1rem;
+    z-index: 10;
+}
+
+/* Results panel */
+.results-panel {
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 1rem;
+    padding: 2rem;
+    margin-top: 2rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+/* Parameter controls */
+.parameter-control {
+    background: white;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.075);
+}
+
+.parameter-control h6 {
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 0.5rem;
+}
+
+/* Status indicators */
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.status-converged {
+    background-color: #d1e7dd;
+    color: #0f5132;
+}
+
+.status-running {
+    background-color: #fff3cd;
+    color: #664d03;
+}
+
+.status-failed {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+
+    .method-icon,
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+    }
+
+    .method-icon i,
+    .feature-icon i {
+        font-size: 1.5rem;
+    }
+
+    .chart-container {
+        height: 300px;
+    }
+
+    .parameter-control {
+        padding: 1rem;
+    }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #0056b3;
+}
+
+/* Tooltip customization */
+.tooltip {
+    font-size: 0.875rem;
+}
+
+.tooltip-inner {
+    background-color: var(--dark-color);
+    border-radius: 0.5rem;
+}
+
+/* Progress bars */
+.progress {
+    height: 8px;
+    border-radius: 4px;
+    background-color: #e9ecef;
+}
+
+.progress-bar {
+    border-radius: 4px;
+}
+
+/* Mathematical expressions */
+.math-expression {
+    font-family: 'Times New Roman', serif;
+    font-style: italic;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-left: 4px solid var(--primary-color);
+    border-radius: 0.5rem;
+    margin: 1rem 0;
+}
+
+/* Code blocks */
+.code-block {
+    background-color: #2d3748;
+    color: #e2e8f0;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    overflow-x: auto;
+}
+
+/* Footer */
+footer {
+    margin-top: auto;
+}
+
+/* Print styles */
+@media print {
+
+    .navbar,
+    .btn,
+    footer {
+        display: none !important;
+    }
+
+    .method-card {
+        break-inside: avoid;
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+    }
+}

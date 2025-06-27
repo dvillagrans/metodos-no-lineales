@@ -1,0 +1,911 @@
+{% extends "base.html" %}
+
+{% block title %}Métodos Primales - Métodos de Optimización{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Inicio</a></li>
+                    <li class="breadcrumb-item active">Métodos Primales</li>
+                </ol>
+            </nav>
+
+            <div class="d-flex align-items-center mb-3">
+                <div class="method-icon bg-info bg-gradient text-white rounded-circle me-3">
+                    <i class="fas fa-lock fa-2x"></i>
+                </div>
+                <div>
+                    <h1 class="mb-1">Métodos Primales</h1>
+                    <p class="text-muted mb-0">Gradiente restringido y direcciones factibles</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Información Teórica -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-info bg-gradient text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-book me-2"></i>
+                        Fundamentos de Optimización Restringida
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-3">
+                        Los métodos primales resuelven problemas de optimización con restricciones manteniendo
+                        la factibilidad durante todo el proceso. Estos métodos trabajan directamente en el
+                        espacio de variables primales, proyectando o reduciendo el gradiente para respetar las
+                        restricciones.
+                    </p>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-calculator text-info me-2"></i>Problema General</h6>
+                            <div class="formula-box">
+                                $$\begin{align}
+                                \min_{x} \quad & f(x) \\
+                                \text{s.t.} \quad & g_i(x) \leq 0, \; i = 1,\ldots,m \\
+                                & h_j(x) = 0, \; j = 1,\ldots,p
+                                \end{align}$$
+                            </div>
+                            <p class="small text-muted mt-2">
+                                Donde $g_i(x)$ son restricciones de desigualdad y $h_j(x)$ son restricciones de
+                                igualdad.
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-chart-line text-info me-2"></i>Características</h6>
+                            <ul class="small">
+                                <li><strong>Factibilidad:</strong> Mantiene puntos factibles en cada iteración</li>
+                                <li><strong>Proyección:</strong> Proyecta direcciones al espacio factible</li>
+                                <li><strong>Gradiente reducido:</strong> Elimina componentes que violan restricciones
+                                </li>
+                                <li><strong>Convergencia:</strong> Lineal, robusta para restricciones activas</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6><i class="fas fa-cogs text-info me-2"></i>Métodos Implementados</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="variant-card p-3 border rounded">
+                                        <h6 class="text-info">Gradiente Proyectado</h6>
+                                        <p class="small mb-2">Proyecta el gradiente negativo al conjunto factible.</p>
+                                        <div class="small">$$x_{k+1} = P[x_k - \alpha_k \nabla f(x_k)]$$</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="variant-card p-3 border rounded">
+                                        <h6 class="text-info">Gradiente Reducido</h6>
+                                        <p class="small mb-2">Reduce el gradiente eliminando direcciones restringidas.
+                                        </p>
+                                        <div class="small">$$x_{k+1} = x_k - \alpha_k Z_k Z_k^T \nabla f(x_k)$$</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6><i class="fas fa-shapes text-info me-2"></i>Tipos de Restricciones Disponibles</h6>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="constraint-card p-3 border rounded">
+                                        <h6 class="text-info">Lineal Desigualdad</h6>
+                                        <p class="small mb-1"><strong>Ejemplo:</strong> x + y ≤ 3</p>
+                                        <p class="small mb-0 text-muted">Región semiplano</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="constraint-card p-3 border rounded">
+                                        <h6 class="text-info">Lineal Igualdad</h6>
+                                        <p class="small mb-1"><strong>Ejemplo:</strong> x + y = 2</p>
+                                        <p class="small mb-0 text-muted">Línea recta</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="constraint-card p-3 border rounded">
+                                        <h6 class="text-info">No Lineal</h6>
+                                        <p class="small mb-1"><strong>Ejemplo:</strong> x² + y² ≤ 4</p>
+                                        <p class="small mb-0 text-muted">Región circular</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel de Control y Visualizaciones -->
+    <div class="row">
+        <!-- Panel de Control -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm sticky-top">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-sliders-h me-2"></i>
+                        Configuración
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="constrainedForm">
+                        <!-- Método primal -->
+                        <div class="mb-3">
+                            <label for="method" class="form-label">Método Primal</label>
+                            <select class="form-select" id="method">
+                                <option value="projected_gradient">Gradiente Proyectado</option>
+                                <option value="reduced_gradient">Gradiente Reducido</option>
+                            </select>
+                        </div>
+
+                        <!-- Tipo de restricción -->
+                        <div class="mb-3">
+                            <label for="constraintType" class="form-label">Tipo de Restricción</label>
+                            <select class="form-select" id="constraintType">
+                                <option value="linear_ineq">Lineal Desigualdad (x + y ≤ 3)</option>
+                                <option value="linear_eq">Lineal Igualdad (x + y = 2)</option>
+                                <option value="nonlinear_ineq">No Lineal (x² + y² ≤ 4)</option>
+                            </select>
+                        </div>
+
+                        <!-- Punto inicial -->
+                        <div class="mb-3">
+                            <label class="form-label">Punto Inicial</label>
+                            <div class="row">
+                                <div class="col-6">
+                                    <input type="number" class="form-control" id="x0" value="0.5" step="0.1"
+                                        placeholder="x₀">
+                                </div>
+                                <div class="col-6">
+                                    <input type="number" class="form-control" id="y0" value="0.5" step="0.1"
+                                        placeholder="y₀">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tolerancia -->
+                        <div class="mb-3">
+                            <label for="tolerance" class="form-label">Tolerancia</label>
+                            <select class="form-select" id="tolerance">
+                                <option value="1e-6">1×10⁻⁶ (Estándar)</option>
+                                <option value="1e-4">1×10⁻⁴ (Rápido)</option>
+                                <option value="1e-8">1×10⁻⁸ (Alta precisión)</option>
+                                <option value="1e-10">1×10⁻¹⁰ (Máxima precisión)</option>
+                            </select>
+                        </div>
+
+                        <!-- Iteraciones máximas -->
+                        <div class="mb-3">
+                            <label for="maxIter" class="form-label">Iteraciones Máximas</label>
+                            <input type="number" class="form-control" id="maxIter" value="1000" min="1" max="10000">
+                        </div>
+
+                        <!-- Botones de control -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-info">
+                                <i class="fas fa-play me-2"></i>
+                                Ejecutar Optimización
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
+                                <i class="fas fa-redo me-2"></i>
+                                Reiniciar
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Resultados -->
+                    <div id="results" class="mt-4" style="display: none;">
+                        <div class="alert alert-success">
+                            <h6><i class="fas fa-check-circle me-2"></i>Optimización Completada</h6>
+                            <div id="resultContent"></div>
+                        </div>
+                    </div>
+
+                    <!-- Información adicional -->
+                    <div class="mt-4 p-3 bg-light rounded">
+                        <h6 class="text-info mb-2">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Función de Prueba
+                        </h6>
+                        <div class="small">
+                            <p class="mb-1"><strong>Función:</strong> f(x,y) = (x-1)² + (y-2)²</p>
+                            <p class="mb-1"><strong>Mínimo sin restricciones:</strong> (1, 2)</p>
+                            <p class="mb-0"><strong>Valor mínimo:</strong> 0</p>
+                        </div>
+                    </div>
+
+                    <!-- Estado de restricción -->
+                    <div id="constraintInfo" class="mt-3 p-3 bg-info bg-opacity-10 rounded">
+                        <h6 class="text-info mb-2">
+                            <i class="fas fa-lock me-2"></i>
+                            Restricción Activa
+                        </h6>
+                        <div id="constraintDescription" class="small">
+                            Selecciona un tipo de restricción para ver los detalles.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visualizaciones -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#convergenceTab" role="tab">
+                                <i class="fas fa-chart-line me-2"></i>Convergencia
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#trajectoryTab" role="tab">
+                                <i class="fas fa-route me-2"></i>Trayectoria
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#constraintTab" role="tab">
+                                <i class="fas fa-shapes me-2"></i>Región Factible
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#surfaceTab" role="tab">
+                                <i class="fas fa-cube me-2"></i>Superficie 3D
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content">
+                        <!-- Gráfico de Convergencia -->
+                        <div class="tab-pane fade show active" id="convergenceTab" role="tabpanel">
+                            <div class="chart-container">
+                                <canvas id="convergenceChart" width="400" height="300"></canvas>
+                            </div>
+                            <div class="mt-3">
+                                <p class="small text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Evolución del valor de la función objetivo. Los métodos primales mantienen
+                                    factibilidad pero pueden tener convergencia más lenta cerca de restricciones
+                                    activas.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Gráfico de Trayectoria -->
+                        <div class="tab-pane fade" id="trajectoryTab" role="tabpanel">
+                            <div class="chart-container">
+                                <canvas id="trajectoryChart" width="400" height="300"></canvas>
+                            </div>
+                            <div class="mt-3">
+                                <p class="small text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Trayectoria del algoritmo con curvas de nivel. Observa cómo el método
+                                    mantiene puntos factibles y se mueve a lo largo de las restricciones activas.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Región Factible -->
+                        <div class="tab-pane fade" id="constraintTab" role="tabpanel">
+                            <div class="chart-container">
+                                <canvas id="constraintChart" width="400" height="300"></canvas>
+                            </div>
+                            <div class="mt-3">
+                                <p class="small text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Visualización de la región factible (área sombreada) y la trayectoria de
+                                    optimización.
+                                    La línea roja marca el límite de la restricción.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Superficie 3D -->
+                        <div class="tab-pane fade" id="surfaceTab" role="tabpanel">
+                            <div id="surface3D" style="height: 500px;"></div>
+                            <div class="mt-3">
+                                <p class="small text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Superficie 3D con la región factible proyectada. Los métodos primales
+                                    encuentran el óptimo restringido en el borde o interior de la región factible.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Variables globales para los gráficos
+    let convergenceChart = null;
+    let trajectoryChart = null;
+    let constraintChart = null;
+
+    // Datos de ejemplo para inicialización
+    const sampleData = {
+        x: [1, 1.5],
+        path: [[0.5, 0.5], [0.8, 1.2], [1.0, 1.5], [1.1, 1.4], [1.0, 1.5]],
+        errors: [2.25, 1.1, 0.5, 0.35, 0.25],
+        iterations: 4,
+        converged: true,
+        method: 'projected_gradient'
+    };
+
+    // Inicialización cuando la página esté lista
+    document.addEventListener('DOMContentLoaded', function () {
+        initializeCharts();
+        updateChartsWithData(sampleData);
+        updateConstraintInfo();
+
+        // Event listener para cambio de restricción
+        document.getElementById('constraintType').addEventListener('change', updateConstraintInfo);
+    });
+
+    // Configuración del formulario
+    document.getElementById('constrainedForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        runConstrainedOptimization();
+    });
+
+    function runConstrainedOptimization() {
+        const formData = {
+            method: document.getElementById('method').value,
+            constraint_type: document.getElementById('constraintType').value,
+            x0: [
+                parseFloat(document.getElementById('x0').value),
+                parseFloat(document.getElementById('y0').value)
+            ],
+            tolerance: parseFloat(document.getElementById('tolerance').value),
+            max_iter: parseInt(document.getElementById('maxIter').value)
+        };
+
+        // Mostrar indicador de carga
+        const submitBtn = document.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Ejecutando...';
+        submitBtn.disabled = true;
+
+        fetch('/api/run_constrained', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                updateChartsWithData(data);
+                showResults(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error en la optimización: ' + error.message);
+            })
+            .finally(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
+    }
+
+    function updateConstraintInfo() {
+        const constraintType = document.getElementById('constraintType').value;
+        const infoDiv = document.getElementById('constraintDescription');
+
+        let description = '';
+
+        switch (constraintType) {
+            case 'linear_ineq':
+                description = `
+                <strong>Restricción:</strong> x + y ≤ 3<br>
+                <strong>Tipo:</strong> Lineal de desigualdad<br>
+                <strong>Región factible:</strong> Semiplano inferior izquierdo<br>
+                <strong>Punto inicial sugerido:</strong> (0.5, 0.5)
+            `;
+                break;
+            case 'linear_eq':
+                description = `
+                <strong>Restricción:</strong> x + y = 2<br>
+                <strong>Tipo:</strong> Lineal de igualdad<br>
+                <strong>Región factible:</strong> Línea recta<br>
+                <strong>Punto inicial sugerido:</strong> (1.0, 1.0)
+            `;
+                break;
+            case 'nonlinear_ineq':
+                description = `
+                <strong>Restricción:</strong> x² + y² ≤ 4<br>
+                <strong>Tipo:</strong> No lineal de desigualdad<br>
+                <strong>Región factible:</strong> Interior del círculo<br>
+                <strong>Punto inicial sugerido:</strong> (0.5, 0.5)
+            `;
+                break;
+        }
+
+        infoDiv.innerHTML = description;
+    }
+
+    function initializeCharts() {
+        // Inicializar gráfico de convergencia
+        const ctxConv = document.getElementById('convergenceChart').getContext('2d');
+        convergenceChart = new Chart(ctxConv, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Valor de la función',
+                    data: [],
+                    borderColor: '#0dcaf0',
+                    backgroundColor: 'rgba(13, 202, 240, 0.1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#0dcaf0',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Convergencia - Métodos Primales'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: 'f(x, y)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Iteración'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Inicializar gráfico de trayectoria
+        const ctxTraj = document.getElementById('trajectoryChart').getContext('2d');
+        trajectoryChart = new Chart(ctxTraj, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Trayectoria',
+                    data: [],
+                    borderColor: '#0dcaf0',
+                    backgroundColor: '#0dcaf0',
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    showLine: true,
+                    borderWidth: 2
+                }, {
+                    label: 'Punto inicial',
+                    data: [],
+                    borderColor: '#dc3545',
+                    backgroundColor: '#dc3545',
+                    pointRadius: 8,
+                    pointStyle: 'triangle'
+                }, {
+                    label: 'Punto final',
+                    data: [],
+                    borderColor: '#28a745',
+                    backgroundColor: '#28a745',
+                    pointRadius: 8,
+                    pointStyle: 'star'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Trayectoria con Restricciones'
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'x'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'y'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Inicializar gráfico de región factible
+        const ctxConst = document.getElementById('constraintChart').getContext('2d');
+        constraintChart = new Chart(ctxConst, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Región factible',
+                    data: [],
+                    backgroundColor: 'rgba(13, 202, 240, 0.2)',
+                    borderColor: '#0dcaf0',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    showLine: false
+                }, {
+                    label: 'Frontera restricción',
+                    data: [],
+                    borderColor: '#dc3545',
+                    backgroundColor: '#dc3545',
+                    pointRadius: 2,
+                    showLine: true,
+                    borderWidth: 3
+                }, {
+                    label: 'Trayectoria',
+                    data: [],
+                    borderColor: '#ffc107',
+                    backgroundColor: '#ffc107',
+                    pointRadius: 5,
+                    showLine: true,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Región Factible y Optimización'
+                    }
+                },
+                scales: {
+                    x: {
+                        min: -1,
+                        max: 4,
+                        title: {
+                            display: true,
+                            text: 'x'
+                        }
+                    },
+                    y: {
+                        min: -1,
+                        max: 4,
+                        title: {
+                            display: true,
+                            text: 'y'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Inicializar superficie 3D
+        initializeSurface3D();
+    }
+
+    function initializeSurface3D() {
+        if (typeof Plotly === 'undefined') {
+            console.warn('Plotly no está disponible para la visualización 3D');
+            document.getElementById('surface3D').innerHTML =
+                '<div class="alert alert-warning">Plotly.js no está cargado. La visualización 3D no está disponible.</div>';
+            return;
+        }
+
+        // Crear datos de superficie para la función f(x,y) = (x-1)² + (y-2)²
+        const x = [];
+        const y = [];
+        const z = [];
+
+        for (let i = -1; i <= 4; i += 0.2) {
+            x.push(i);
+        }
+        for (let j = -1; j <= 4; j += 0.2) {
+            y.push(j);
+        }
+
+        for (let i = 0; i < y.length; i++) {
+            z[i] = [];
+            for (let j = 0; j < x.length; j++) {
+                z[i][j] = Math.pow(x[j] - 1, 2) + Math.pow(y[i] - 2, 2);
+            }
+        }
+
+        const layout = {
+            title: 'Superficie 3D - Optimización Restringida',
+            scene: {
+                xaxis: { title: 'x' },
+                yaxis: { title: 'y' },
+                zaxis: { title: 'f(x,y)' },
+                camera: {
+                    eye: { x: 1.5, y: 1.5, z: 1.5 }
+                }
+            },
+            margin: { l: 0, r: 0, b: 0, t: 40 }
+        };
+
+        const surface = {
+            x: x,
+            y: y,
+            z: z,
+            type: 'surface',
+            colorscale: 'Blues',
+            opacity: 0.8,
+            name: 'f(x,y)'
+        };
+
+        Plotly.newPlot('surface3D', [surface], layout);
+    }
+
+    function updateChartsWithData(data) {
+        // Actualizar gráfico de convergencia
+        if (convergenceChart && data.errors) {
+            const iterations = Array.from({ length: data.errors.length }, (_, i) => i);
+            convergenceChart.data.labels = iterations;
+            convergenceChart.data.datasets[0].data = data.errors;
+            convergenceChart.update();
+        }
+
+        // Actualizar gráfico de trayectoria
+        if (trajectoryChart && data.path) {
+            const trajectoryData = data.path.map(point => ({ x: point[0], y: point[1] }));
+            trajectoryChart.data.datasets[0].data = trajectoryData;
+
+            if (data.path.length > 0) {
+                trajectoryChart.data.datasets[1].data = [{ x: data.path[0][0], y: data.path[0][1] }];
+                trajectoryChart.data.datasets[2].data = [{ x: data.path[data.path.length - 1][0], y: data.path[data.path.length - 1][1] }];
+            }
+
+            trajectoryChart.update();
+        }
+
+        // Actualizar gráfico de región factible
+        updateConstraintChart(data);
+
+        // Actualizar superficie 3D
+        updateSurface3D(data);
+    }
+
+    function updateConstraintChart(data) {
+        if (!constraintChart) return;
+
+        const constraintType = document.getElementById('constraintType').value;
+
+        // Generar puntos de la frontera de la restricción
+        let boundaryPoints = [];
+
+        switch (constraintType) {
+            case 'linear_ineq':
+                // x + y = 3 (frontera)
+                for (let x = -1; x <= 4; x += 0.1) {
+                    boundaryPoints.push({ x: x, y: 3 - x });
+                }
+                break;
+            case 'linear_eq':
+                // x + y = 2
+                for (let x = -1; x <= 4; x += 0.1) {
+                    boundaryPoints.push({ x: x, y: 2 - x });
+                }
+                break;
+            case 'nonlinear_ineq':
+                // x² + y² = 4 (círculo)
+                for (let theta = 0; theta <= 2 * Math.PI; theta += 0.1) {
+                    boundaryPoints.push({ x: 2 * Math.cos(theta), y: 2 * Math.sin(theta) });
+                }
+                break;
+        }
+
+        constraintChart.data.datasets[1].data = boundaryPoints;
+
+        // Actualizar trayectoria si hay datos
+        if (data && data.path) {
+            const trajectoryData = data.path.map(point => ({ x: point[0], y: point[1] }));
+            constraintChart.data.datasets[2].data = trajectoryData;
+        }
+
+        constraintChart.update();
+    }
+
+    function updateSurface3D(data) {
+        if (typeof Plotly === 'undefined' || !data.path) {
+            return;
+        }
+
+        try {
+            // Datos de la trayectoria
+            const pathX = data.path.map(point => point[0]);
+            const pathY = data.path.map(point => point[1]);
+            const pathZ = data.path.map(point => Math.pow(point[0] - 1, 2) + Math.pow(point[1] - 2, 2));
+
+            // Trace de la trayectoria
+            const trajectoryTrace = {
+                x: pathX,
+                y: pathY,
+                z: pathZ,
+                type: 'scatter3d',
+                mode: 'lines+markers',
+                line: { color: '#0dcaf0', width: 6 },
+                marker: { size: 5, color: '#0dcaf0' },
+                name: 'Trayectoria Restringida'
+            };
+
+            // Punto inicial
+            const startTrace = {
+                x: [pathX[0]],
+                y: [pathY[0]],
+                z: [pathZ[0]],
+                type: 'scatter3d',
+                mode: 'markers',
+                marker: { size: 10, color: '#dc3545', symbol: 'diamond' },
+                name: 'Inicio'
+            };
+
+            // Punto final
+            const endTrace = {
+                x: [pathX[pathX.length - 1]],
+                y: [pathY[pathY.length - 1]],
+                z: [pathZ[pathZ.length - 1]],
+                type: 'scatter3d',
+                mode: 'markers',
+                marker: { size: 12, color: '#28a745', symbol: 'star' },
+                name: 'Óptimo Restringido'
+            };
+
+            // Agregar los nuevos traces
+            Plotly.addTraces('surface3D', [trajectoryTrace, startTrace, endTrace]);
+
+        } catch (error) {
+            console.error('Error actualizando superficie 3D:', error);
+        }
+    }
+
+    function showResults(data) {
+        const resultsDiv = document.getElementById('results');
+        const contentDiv = document.getElementById('resultContent');
+
+        const convergedText = data.converged ?
+            '<span class="text-success"><i class="fas fa-check me-1"></i>Convergió</span>' :
+            '<span class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>No convergió</span>';
+
+        contentDiv.innerHTML = `
+        <div class="row g-2">
+            <div class="col-6">
+                <strong>Punto óptimo:</strong><br>
+                <code>(${data.x[0].toFixed(6)}, ${data.x[1].toFixed(6)})</code>
+            </div>
+            <div class="col-6">
+                <strong>Valor óptimo:</strong><br>
+                <code>${data.errors[data.errors.length - 1].toExponential(3)}</code>
+            </div>
+            <div class="col-6">
+                <strong>Iteraciones:</strong><br>
+                <code>${data.iterations}</code>
+            </div>
+            <div class="col-6">
+                <strong>Estado:</strong><br>
+                ${convergedText}
+            </div>
+        </div>
+    `;
+
+        resultsDiv.style.display = 'block';
+    }
+
+    function resetForm() {
+        document.getElementById('method').value = 'projected_gradient';
+        document.getElementById('constraintType').value = 'linear_ineq';
+        document.getElementById('x0').value = '0.5';
+        document.getElementById('y0').value = '0.5';
+        document.getElementById('tolerance').value = '1e-6';
+        document.getElementById('maxIter').value = '1000';
+
+        document.getElementById('results').style.display = 'none';
+        updateConstraintInfo();
+
+        // Reinicializar con datos de ejemplo
+        updateChartsWithData(sampleData);
+
+        // Limpiar trazas adicionales en 3D
+        if (typeof Plotly !== 'undefined') {
+            try {
+                const plotDiv = document.getElementById('surface3D');
+                if (plotDiv && plotDiv.data && plotDiv.data.length > 1) {
+                    Plotly.deleteTraces('surface3D', [1, 2, 3]);
+                }
+            } catch (error) {
+                console.error('Error limpiando superficie 3D:', error);
+            }
+        }
+    }
+</script>
+
+<style>
+    .method-icon {
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .formula-box {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #0dcaf0;
+        text-align: center;
+        font-size: 1.1em;
+    }
+
+    .variant-card {
+        background: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+
+    .variant-card:hover {
+        background: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .constraint-card {
+        background: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+
+    .constraint-card:hover {
+        background: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .chart-container {
+        position: relative;
+        height: 400px;
+    }
+
+    .sticky-top {
+        top: 20px;
+    }
+
+    #surface3D {
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+    }
+</style>
+{% endblock %}

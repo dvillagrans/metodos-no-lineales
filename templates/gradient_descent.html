@@ -1,0 +1,778 @@
+{% extends "base.html" %}
+
+{% block title %}Descenso de Gradiente - Métodos de Optimización{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Inicio</a></li>
+                    <li class="breadcrumb-item active">Descenso de Gradiente</li>
+                </ol>
+            </nav>
+
+            <div class="d-flex align-items-center mb-3">
+                <div class="method-icon bg-success bg-gradient text-white rounded-circle me-3">
+                    <i class="fas fa-arrow-down fa-2x"></i>
+                </div>
+                <div>
+                    <h1 class="mb-1">Métodos de Descenso de Gradiente</h1>
+                    <p class="text-muted mb-0">Gradiente básico, Momentum y Adam optimizer</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Teoría -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-book me-2"></i>
+                        Fundamentos Teóricos
+                    </h5>
+                    <p class="card-text">
+                        El descenso de gradiente es un algoritmo iterativo que minimiza una función moviéndose en la
+                        dirección del gradiente negativo:
+                    </p>
+                    <div class="math-expression text-center">
+                        $$x_{k+1} = x_k - \alpha \nabla f(x_k)$$
+                    </div>
+                    <p class="card-text">
+                        Donde $x_k$ es el punto actual, $\alpha$ es la tasa de aprendizaje, y $\nabla f(x_k)$ es el
+                        gradiente.
+                    </p>
+
+                    <div class="row mt-3">
+                        <div class="col-md-4">
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="fas fa-arrow-down"></i>
+                                </div>
+                                <h6>Gradiente Básico</h6>
+                                <p class="small text-muted">Algoritmo fundamental que sigue la dirección de mayor
+                                    descenso.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="fas fa-rocket"></i>
+                                </div>
+                                <h6>Momentum</h6>
+                                <p class="small text-muted">Acelera la convergencia usando información de iteraciones
+                                    previas.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="feature-item">
+                                <div class="feature-icon">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <h6>Adam</h6>
+                                <p class="small text-muted">Algoritmo adaptativo que combina momentum con escalado de
+                                    gradiente.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel Principal -->
+    <div class="row">
+        <!-- Panel de Control -->
+        <div class="col-md-4">
+            <div class="control-panel">
+                <h5 class="panel-title">
+                    <i class="fas fa-cogs me-2"></i>
+                    Panel de Control
+                </h5>
+
+                <form id="optimizationForm">
+                    <!-- Método -->
+                    <div class="mb-3">
+                        <label for="method" class="form-label">Método de Descenso</label>
+                        <select class="form-select" id="method" name="method">
+                            <option value="gradient_descent">Descenso de Gradiente Básico</option>
+                            <option value="gradient_descent_momentum">Descenso con Momentum</option>
+                            <option value="adam">Adam Optimizer</option>
+                        </select>
+                    </div>
+
+                    <!-- Punto inicial -->
+                    <div class="mb-3">
+                        <label class="form-label">Punto Inicial (x₀, y₀)</label>
+                        <div class="row">
+                            <div class="col-6">
+                                <input type="number" class="form-control" id="x0" placeholder="x₀" value="3.0"
+                                    step="0.1">
+                            </div>
+                            <div class="col-6">
+                                <input type="number" class="form-control" id="y0" placeholder="y₀" value="3.0"
+                                    step="0.1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tasa de aprendizaje -->
+                    <div class="mb-3">
+                        <label for="learningRate" class="form-label">Tasa de Aprendizaje (α)</label>
+                        <input type="number" class="form-control" id="learningRate" value="0.1" step="0.01" min="0.001"
+                            max="1.0">
+                    </div>
+
+                    <!-- Tolerancia -->
+                    <div class="mb-3">
+                        <label for="tolerance" class="form-label">Tolerancia</label>
+                        <input type="number" class="form-control" id="tolerance" value="0.000001" step="0.000001"
+                            min="0.000001">
+                    </div>
+
+                    <!-- Iteraciones máximas -->
+                    <div class="mb-3">
+                        <label for="maxIter" class="form-label">Iteraciones Máximas</label>
+                        <input type="number" class="form-control" id="maxIter" value="1000" min="1" max="10000">
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success" id="runOptimization">
+                            <i class="fas fa-play me-2"></i>
+                            Ejecutar Optimización
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="resetForm">
+                            <i class="fas fa-undo me-2"></i>
+                            Resetear
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Función objetivo -->
+            <div class="parameter-control">
+                <h6>
+                    <i class="fas fa-function me-2"></i>
+                    Función Objetivo
+                </h6>
+                <div class="math-expression">
+                    $$f(x,y) = (x-1)^2 + (y-2)^2$$
+                </div>
+                <p class="text-muted small mb-0">
+                    <strong>Mínimo global:</strong> $(1, 2)$ con $f^* = 0$
+                </p>
+            </div>
+        </div>
+
+        <!-- Visualización -->
+        <div class="col-md-8">
+            <div class="visualization-panel">
+                <div class="panel-header">
+                    <h5 class="panel-title">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Visualización de la Optimización
+                    </h5>
+                    <div class="panel-controls">
+                        <button class="btn btn-sm btn-outline-primary" id="exportResults">
+                            <i class="fas fa-download me-1"></i>
+                            Exportar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tabs de visualización -->
+                <ul class="nav nav-tabs" id="visualizationTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="convergence-tab" data-bs-toggle="tab"
+                            data-bs-target="#convergence" type="button" role="tab">
+                            <i class="fas fa-chart-line me-1"></i>
+                            Convergencia
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="path-tab" data-bs-toggle="tab" data-bs-target="#path" type="button"
+                            role="tab">
+                            <i class="fas fa-route me-1"></i>
+                            Trayectoria
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="surface-tab" data-bs-toggle="tab" data-bs-target="#surface"
+                            type="button" role="tab">
+                            <i class="fas fa-mountain me-1"></i>
+                            Superficie 3D
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Contenido de tabs -->
+                <div class="tab-content" id="visualizationTabContent">
+                    <!-- Convergencia -->
+                    <div class="tab-pane fade show active" id="convergence" role="tabpanel">
+                        <div class="chart-container">
+                            <canvas id="convergenceChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Trayectoria -->
+                    <div class="tab-pane fade" id="path" role="tabpanel">
+                        <div class="chart-container">
+                            <canvas id="pathChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Superficie 3D -->
+                    <div class="tab-pane fade" id="surface" role="tabpanel">
+                        <div class="chart-container">
+                            <canvas id="surfaceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resultados -->
+            <div class="results-panel" id="resultsPanel" style="display: none;">
+                <h6>
+                    <i class="fas fa-calculator me-2"></i>
+                    Resultados de la Optimización
+                </h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="result-item">
+                            <label>Solución encontrada:</label>
+                            <span id="solution" class="result-value">-</span>
+                        </div>
+                        <div class="result-item">
+                            <label>Valor de la función:</label>
+                            <span id="functionValue" class="result-value">-</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="result-item">
+                            <label>Iteraciones:</label>
+                            <span id="iterations" class="result-value">-</span>
+                        </div>
+                        <div class="result-item">
+                            <label>Convergencia:</label>
+                            <span id="converged" class="result-value">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Modal -->
+<div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="spinner-border text-success mb-3" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+                <h5>Ejecutando Optimización</h5>
+                <p class="text-muted">Por favor espera mientras se calcula la solución...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Variables globales
+        let convergenceChart = null;
+        let pathChart = null;
+        let surfaceChart = null;
+        let currentResults = null;
+
+        // Elementos del DOM
+        const form = document.getElementById('optimizationForm');
+        const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+        const resultsPanel = document.getElementById('resultsPanel');
+
+        // Event listeners
+        form.addEventListener('submit', handleOptimization);
+        document.getElementById('resetForm').addEventListener('click', resetForm);
+        document.getElementById('exportResults').addEventListener('click', exportResults);
+
+        // Inicializar gráficos vacíos
+        initializeCharts();
+
+        async function handleOptimization(e) {
+            e.preventDefault();
+
+            loadingModal.show();
+
+            const formData = {
+                method: document.getElementById('method').value,
+                x0: [
+                    parseFloat(document.getElementById('x0').value),
+                    parseFloat(document.getElementById('y0').value)
+                ],
+                learning_rate: parseFloat(document.getElementById('learningRate').value),
+                tolerance: parseFloat(document.getElementById('tolerance').value),
+                max_iter: parseInt(document.getElementById('maxIter').value)
+            };
+
+            try {
+                const response = await fetch('/api/run_gradient_descent', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.error || 'Error en la optimización');
+                }
+
+                currentResults = result;
+                displayResults(result);
+                updateCharts(result);
+                resultsPanel.style.display = 'block';
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
+            } finally {
+                loadingModal.hide();
+            }
+        }
+
+        function displayResults(result) {
+            document.getElementById('solution').textContent =
+                `(${result.x[0].toFixed(6)}, ${result.x[1].toFixed(6)})`;
+            document.getElementById('functionValue').textContent =
+                result.errors[result.errors.length - 1].toFixed(6);
+            document.getElementById('iterations').textContent = result.iterations;
+            document.getElementById('converged').innerHTML = result.converged ?
+                '<span class="badge bg-success">Sí</span>' :
+                '<span class="badge bg-warning">No</span>';
+        }
+
+        function updateCharts(result) {
+            updateConvergenceChart(result);
+            updatePathChart(result);
+            updateSurfaceChart(result);
+        }
+
+        function updateConvergenceChart(result) {
+            const ctx = document.getElementById('convergenceChart').getContext('2d');
+
+            if (convergenceChart) {
+                convergenceChart.destroy();
+            }
+
+            convergenceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({ length: result.errors.length }, (_, i) => i),
+                    datasets: [{
+                        label: 'Valor de la función',
+                        data: result.errors,
+                        borderColor: 'rgb(40, 167, 69)',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        tension: 0.1,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Convergencia del Algoritmo'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Iteración'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'f(x)'
+                            },
+                            type: 'logarithmic'
+                        }
+                    }
+                }
+            });
+        }
+
+        function updatePathChart(result) {
+            const ctx = document.getElementById('pathChart').getContext('2d');
+
+            if (pathChart) {
+                pathChart.destroy();
+            }
+
+            pathChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        // Puntos de la trayectoria
+                        {
+                            label: 'Trayectoria',
+                            data: result.path.map((point, index) => ({
+                                x: point[0],
+                                y: point[1],
+                                iteration: index
+                            })),
+                            backgroundColor: 'rgba(40, 167, 69, 0.7)',
+                            borderColor: 'rgb(40, 167, 69)',
+                            pointRadius: 4,
+                            showLine: true,
+                            tension: 0.1
+                        },
+                        // Punto inicial
+                        {
+                            label: 'Punto inicial',
+                            data: [{ x: result.path[0][0], y: result.path[0][1] }],
+                            backgroundColor: 'rgb(220, 53, 69)',
+                            borderColor: 'rgb(220, 53, 69)',
+                            pointRadius: 8,
+                            showLine: false
+                        },
+                        // Punto final
+                        {
+                            label: 'Punto final',
+                            data: [{ x: result.x[0], y: result.x[1] }],
+                            backgroundColor: 'rgb(13, 202, 240)',
+                            borderColor: 'rgb(13, 202, 240)',
+                            pointRadius: 8,
+                            showLine: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Trayectoria de Optimización'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    if (context.datasetIndex === 0) {
+                                        return `Iteración ${context.raw.iteration}: (${context.raw.x.toFixed(3)}, ${context.raw.y.toFixed(3)})`;
+                                    }
+                                    return `${context.dataset.label}: (${context.raw.x.toFixed(3)}, ${context.raw.y.toFixed(3)})`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'x'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'y'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateSurfaceChart(result) {
+            try {
+                // Verificar que Plotly esté disponible
+                if (typeof Plotly === 'undefined') {
+                    console.error('Plotly no está disponible');
+                    return;
+                }
+
+                // Crear datos para la superficie 3D
+                const xRange = [];
+                const yRange = [];
+
+                // Crear rangos más pequeños para mejor rendimiento
+                for (let i = -1; i <= 5; i += 0.3) {
+                    xRange.push(i);
+                }
+                for (let j = -1; j <= 5; j += 0.3) {
+                    yRange.push(j);
+                }
+
+                // Crear matriz Z para la superficie
+                const z = [];
+                for (let i = 0; i < yRange.length; i++) {
+                    z[i] = [];
+                    for (let j = 0; j < xRange.length; j++) {
+                        z[i][j] = Math.pow(xRange[j] - 1, 2) + Math.pow(yRange[i] - 2, 2);
+                    }
+                }
+
+                // Superficie 3D
+                const surfaceTrace = {
+                    x: xRange,
+                    y: yRange,
+                    z: z,
+                    type: 'surface',
+                    colorscale: 'Viridis',
+                    opacity: 0.8,
+                    name: 'f(x,y)',
+                    showscale: false
+                };
+
+                // Trayectoria de optimización
+                const pathTrace = {
+                    x: result.path.map(p => p[0]),
+                    y: result.path.map(p => p[1]),
+                    z: result.path.map(p => Math.pow(p[0] - 1, 2) + Math.pow(p[1] - 2, 2)),
+                    mode: 'lines+markers',
+                    type: 'scatter3d',
+                    line: {
+                        color: 'red',
+                        width: 6
+                    },
+                    marker: {
+                        color: 'red',
+                        size: 5
+                    },
+                    name: 'Trayectoria'
+                };
+
+                // Punto inicial
+                const startPoint = {
+                    x: [result.path[0][0]],
+                    y: [result.path[0][1]],
+                    z: [Math.pow(result.path[0][0] - 1, 2) + Math.pow(result.path[0][1] - 2, 2)],
+                    mode: 'markers',
+                    type: 'scatter3d',
+                    marker: {
+                        color: 'green',
+                        size: 8,
+                        symbol: 'circle'
+                    },
+                    name: 'Inicio'
+                };
+
+                // Punto final
+                const endPoint = {
+                    x: [result.x[0]],
+                    y: [result.x[1]],
+                    z: [Math.pow(result.x[0] - 1, 2) + Math.pow(result.x[1] - 2, 2)],
+                    mode: 'markers',
+                    type: 'scatter3d',
+                    marker: {
+                        color: 'blue',
+                        size: 10,
+                        symbol: 'diamond'
+                    },
+                    name: 'Final'
+                };
+
+                const data = [surfaceTrace, pathTrace, startPoint, endPoint];
+
+                const layout = {
+                    title: {
+                        text: 'Superficie 3D de la Función y Trayectoria',
+                        font: { size: 16 }
+                    },
+                    scene: {
+                        xaxis: {
+                            title: 'x',
+                            range: [-1, 5]
+                        },
+                        yaxis: {
+                            title: 'y',
+                            range: [-1, 5]
+                        },
+                        zaxis: {
+                            title: 'f(x,y)'
+                        },
+                        camera: {
+                            eye: { x: 1.5, y: 1.5, z: 1.5 }
+                        }
+                    },
+                    margin: { l: 0, r: 0, b: 0, t: 40 },
+                    showlegend: true,
+                    legend: {
+                        x: 0,
+                        y: 1
+                    }
+                };
+
+                const config = {
+                    responsive: true,
+                    displayModeBar: true,
+                    modeBarButtonsToRemove: ['pan2d', 'lasso2d', 'select2d']
+                };
+
+                // Limpiar el contenedor antes de crear el nuevo gráfico
+                document.getElementById('surfaceChart').innerHTML = '';
+
+                Plotly.newPlot('surfaceChart', data, layout, config);
+
+            } catch (error) {
+                console.error('Error al crear superficie 3D:', error);
+                // Mostrar mensaje de error en el contenedor
+                document.getElementById('surfaceChart').innerHTML =
+                    '<div class="alert alert-warning text-center mt-4">' +
+                    '<i class="fas fa-exclamation-triangle me-2"></i>' +
+                    'Error al cargar la visualización 3D. Verifica que Plotly.js esté cargado correctamente.' +
+                    '</div>';
+            }
+        }
+
+        function initializeCharts() {
+            // Inicializar gráficos vacíos
+            const convergenceCtx = document.getElementById('convergenceChart').getContext('2d');
+            convergenceChart = new Chart(convergenceCtx, {
+                type: 'line',
+                data: { labels: [], datasets: [] },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Ejecuta una optimización para ver la convergencia'
+                        }
+                    }
+                }
+            });
+
+            const pathCtx = document.getElementById('pathChart').getContext('2d');
+            pathChart = new Chart(pathCtx, {
+                type: 'scatter',
+                data: { datasets: [] },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Ejecuta una optimización para ver la trayectoria'
+                        }
+                    }
+                }
+            });
+
+            // Superficie 3D inicial con verificación de Plotly
+            try {
+                if (typeof Plotly !== 'undefined') {
+                    // Crear superficie básica para mostrar la función
+                    const xRange = [];
+                    const yRange = [];
+
+                    for (let i = -1; i <= 5; i += 0.4) {
+                        xRange.push(i);
+                    }
+                    for (let j = -1; j <= 5; j += 0.4) {
+                        yRange.push(j);
+                    }
+
+                    const z = [];
+                    for (let i = 0; i < yRange.length; i++) {
+                        z[i] = [];
+                        for (let j = 0; j < xRange.length; j++) {
+                            z[i][j] = Math.pow(xRange[j] - 1, 2) + Math.pow(yRange[i] - 2, 2);
+                        }
+                    }
+
+                    const data = [{
+                        x: xRange,
+                        y: yRange,
+                        z: z,
+                        type: 'surface',
+                        colorscale: 'Viridis',
+                        opacity: 0.8,
+                        showscale: false
+                    }];
+
+                    const layout = {
+                        title: {
+                            text: 'Superficie de la Función f(x,y) = (x-1)² + (y-2)²',
+                            font: { size: 14 }
+                        },
+                        scene: {
+                            xaxis: { title: 'x' },
+                            yaxis: { title: 'y' },
+                            zaxis: { title: 'f(x,y)' },
+                            camera: {
+                                eye: { x: 1.5, y: 1.5, z: 1.5 }
+                            }
+                        },
+                        margin: { l: 0, r: 0, b: 0, t: 40 },
+                        showlegend: false
+                    };
+
+                    Plotly.newPlot('surfaceChart', data, layout, { responsive: true });
+                } else {
+                    console.warn('Plotly no está disponible durante la inicialización');
+                    document.getElementById('surfaceChart').innerHTML =
+                        '<div class="alert alert-info text-center mt-4">' +
+                        '<i class="fas fa-info-circle me-2"></i>' +
+                        'Cargando visualización 3D...' +
+                        '</div>';
+                }
+            } catch (error) {
+                console.error('Error al inicializar superficie 3D:', error);
+                document.getElementById('surfaceChart').innerHTML =
+                    '<div class="alert alert-warning text-center mt-4">' +
+                    '<i class="fas fa-exclamation-triangle me-2"></i>' +
+                    'Error al cargar la visualización 3D' +
+                    '</div>';
+            }
+        }
+
+        function resetForm() {
+            form.reset();
+            document.getElementById('x0').value = '3.0';
+            document.getElementById('y0').value = '3.0';
+            document.getElementById('learningRate').value = '0.1';
+            document.getElementById('tolerance').value = '0.000001';
+            document.getElementById('maxIter').value = '1000';
+
+            resultsPanel.style.display = 'none';
+            currentResults = null;
+
+            initializeCharts();
+        }
+
+        function exportResults() {
+            if (!currentResults) {
+                alert('No hay resultados para exportar');
+                return;
+            }
+
+            const dataStr = JSON.stringify(currentResults, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = 'gradient_descent_results.json';
+            link.click();
+        }
+    });
+</script>
+{% endblock %}
