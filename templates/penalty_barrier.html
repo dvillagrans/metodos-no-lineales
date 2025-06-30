@@ -149,6 +149,22 @@
                             </select>
                         </div>
 
+                        <!-- Ejercicios Predefinidos -->
+                        <div class="mb-3">
+                            <label for="exerciseSelect" class="form-label">
+                                <i class="fas fa-book me-1"></i>
+                                Ejercicios Predefinidos
+                            </label>
+                            <select class="form-select" id="exerciseSelect">
+                                <option value="">Personalizar parámetros</option>
+                                <option value="ejercicio1">Ejercicio 1: min x₁² + x₂² s.t. x₁ + x₂ ≤ 3</option>
+                                <option value="ejercicio2">Ejercicio 2: min (x₁-2)² + (x₂-2)² s.t. x₁² + x₂² ≤ 4
+                                </option>
+                                <option value="ejercicio3">Ejercicio 3: min x₁² + x₂² s.t. x₁ ≥ 0, x₂ ≥ 0</option>
+                            </select>
+                            <small class="text-muted">Selecciona un ejercicio para cargar sus parámetros</small>
+                        </div>
+
                         <!-- Tipo de restricción -->
                         <div class="mb-3">
                             <label for="constraintType" class="form-label">Tipo de Restricción</label>
@@ -366,6 +382,9 @@
         // Event listeners para cambios
         document.getElementById('method').addEventListener('change', updateMethodInfo);
         document.getElementById('constraintType').addEventListener('change', updateMethodInfo);
+
+        // Event listener para ejercicios predefinidos
+        document.getElementById('exerciseSelect').addEventListener('change', loadExercise);
     });
 
     // Configuración del formulario
@@ -456,6 +475,86 @@
         }
 
         infoDiv.innerHTML = description;
+    }
+
+    function loadExercise() {
+        const exerciseSelect = document.getElementById('exerciseSelect');
+        const selectedExercise = exerciseSelect.value;
+
+        if (!selectedExercise) {
+            return; // No hay ejercicio seleccionado
+        }
+
+        // Definir los ejercicios con sus parámetros
+        const exercises = {
+            ejercicio1: {
+                // Ejercicio 1: min x₁² + x₂² s.t. x₁ + x₂ ≤ 3
+                x0: [1.0, 1.0],
+                constraintType: 'linear_ineq',
+                method: 'exterior_penalty',
+                tolerance: 1e-6,
+                maxIter: 1000,
+                penaltyParam: 10.0,
+                description: "Minimizar x₁² + x₂² sujeto a x₁ + x₂ ≤ 3",
+                expectedResult: "Óptimo: (1.5, 1.5), Valor: 4.5"
+            },
+            ejercicio2: {
+                // Ejercicio 2: min (x₁-2)² + (x₂-2)² s.t. x₁² + x₂² ≤ 4
+                x0: [1.0, 1.0],
+                constraintType: 'nonlinear_ineq',
+                method: 'logarithmic_barrier',
+                tolerance: 1e-6,
+                maxIter: 1000,
+                penaltyParam: 1.0,
+                description: "Minimizar (x₁-2)² + (x₂-2)² sujeto a x₁² + x₂² ≤ 4",
+                expectedResult: "Óptimo: (√2, √2), Valor: ≈ 0.34"
+            },
+            ejercicio3: {
+                // Ejercicio 3: min x₁² + x₂² s.t. x₁ ≥ 0, x₂ ≥ 0
+                x0: [1.0, 1.0],
+                constraintType: 'box_constraints',
+                method: 'logarithmic_barrier',
+                tolerance: 1e-6,
+                maxIter: 1000,
+                penaltyParam: 1.0,
+                description: "Minimizar x₁² + x₂² sujeto a x₁ ≥ 0, x₂ ≥ 0",
+                expectedResult: "Óptimo: (0, 0), Valor: 0"
+            }
+        };
+
+        const exercise = exercises[selectedExercise];
+        if (exercise) {
+            // Cargar parámetros en el formulario
+            document.getElementById('x0').value = exercise.x0[0];
+            document.getElementById('y0').value = exercise.x0[1];
+            document.getElementById('constraintType').value = exercise.constraintType;
+            document.getElementById('method').value = exercise.method;
+            document.getElementById('tolerance').value = exercise.tolerance;
+            document.getElementById('maxIter').value = exercise.maxIter;
+            document.getElementById('penaltyParam').value = exercise.penaltyParam;
+
+            // Actualizar la información del método
+            updateMethodInfo();
+
+            // Actualizar la información de la función
+            updateFunctionDisplay(exercise);
+        }
+    }
+
+    function updateFunctionDisplay(exercise) {
+        const infoDiv = document.querySelector('.mt-4.p-3.bg-light.rounded');
+        if (infoDiv) {
+            infoDiv.innerHTML = `
+                <h6 class="text-danger mb-2">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Función y Restricción del Ejercicio
+                </h6>
+                <div class="small">
+                    <p class="mb-1"><strong>Problema:</strong> ${exercise.description}</p>
+                    <p class="mb-0"><strong>Resultado esperado:</strong> ${exercise.expectedResult}</p>
+                </div>
+            `;
+        }
     }
 
     function initializeCharts() {

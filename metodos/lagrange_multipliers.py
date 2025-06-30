@@ -54,15 +54,15 @@ class LagrangeMultiplierOptimizer:
             f_grad = grad(*x)
             f_hess = hess(*x)
             
-            h_vals = np.array([h(*x) for h in constraints_eq])
-            h_jacs = np.array([jac(*x) for jac in constraints_eq_jac])
+            h_vals = np.array([h(x) for h in constraints_eq])
+            h_jacs = np.array([jac(x) for jac in constraints_eq_jac])
             
             # Gradiente del Lagrangiano respecto a x
             grad_L_x = f_grad + h_jacs.T @ lam
             
             # Calcular hessiana del Lagrangiano
             if constraints_eq_hess:
-                hess_L_x = f_hess + sum([lam[i] * hess_h(*x) for i, hess_h in enumerate(constraints_eq_hess)])
+                hess_L_x = f_hess + sum([lam[i] * hess_h(x) for i, hess_h in enumerate(constraints_eq_hess)])
             else:
                 # Aproximación cuasi-Newton (solo hessiana de f)
                 hess_L_x = f_hess
@@ -113,7 +113,7 @@ class LagrangeMultiplierOptimizer:
         return {
             'x': x,
             'lambda': lam,
-            'path_x': np.array(path_x),
+            'path': np.array(path_x),  # Usar path estándar
             'path_lambda': np.array(path_lambda),
             'errors': errors,
             'violations': violations,
@@ -181,13 +181,13 @@ class LagrangeMultiplierOptimizer:
                 # Términos para restricciones de igualdad
                 if constraints_eq:
                     for i, h in enumerate(constraints_eq):
-                        h_val = h(*x_eval)
+                        h_val = h(x_eval)
                         aug_term += lambda_eq[i] * h_val + (mu/2) * h_val**2
                 
                 # Términos para restricciones de desigualdad
                 if constraints_ineq:
                     for i, g in enumerate(constraints_ineq):
-                        g_val = g(*x_eval)
+                        g_val = g(x_eval)
                         term = g_val + lambda_ineq[i]/mu
                         if term > 0:
                             aug_term += lambda_ineq[i] * g_val + (mu/2) * g_val**2
@@ -204,15 +204,15 @@ class LagrangeMultiplierOptimizer:
                 # Gradiente para restricciones de igualdad
                 if constraints_eq:
                     for i, (h, h_jac) in enumerate(zip(constraints_eq, constraints_eq_jac)):
-                        h_val = h(*x_eval)
-                        h_grad = h_jac(*x_eval)
+                        h_val = h(x_eval)
+                        h_grad = h_jac(x_eval)
                         grad_aug += (lambda_eq[i] + mu * h_val) * h_grad
                 
                 # Gradiente para restricciones de desigualdad
                 if constraints_ineq:
                     for i, (g, g_jac) in enumerate(zip(constraints_ineq, constraints_ineq_jac)):
-                        g_val = g(*x_eval)
-                        g_grad = g_jac(*x_eval)
+                        g_val = g(x_eval)
+                        g_grad = g_jac(x_eval)
                         term = g_val + lambda_ineq[i]/mu
                         if term > 0:
                             grad_aug += (lambda_ineq[i] + mu * g_val) * g_grad
@@ -229,20 +229,20 @@ class LagrangeMultiplierOptimizer:
             # Actualizar multiplicadores
             if constraints_eq:
                 for i, h in enumerate(constraints_eq):
-                    h_val = h(*x)
+                    h_val = h(x)
                     lambda_eq[i] = lambda_eq[i] + mu * h_val
             
             if constraints_ineq:
                 for i, g in enumerate(constraints_ineq):
-                    g_val = g(*x)
+                    g_val = g(x)
                     lambda_ineq[i] = max(0, lambda_ineq[i] + mu * g_val)
             
             # Calcular violación de restricciones
             violation = 0.0
             if constraints_eq:
-                violation += sum([h(*x)**2 for h in constraints_eq])
+                violation += sum([h(x)**2 for h in constraints_eq])
             if constraints_ineq:
-                violation += sum([max(0, g(*x))**2 for g in constraints_ineq])
+                violation += sum([max(0, g(x))**2 for g in constraints_ineq])
             
             violations.append(violation)
             path_x.append(x.copy())
@@ -261,12 +261,12 @@ class LagrangeMultiplierOptimizer:
             'x': x,
             'lambda_eq': lambda_eq,
             'lambda_ineq': lambda_ineq,
-            'path_x': np.array(path_x),
+            'path': np.array(path_x),  # Usar path estándar
             'path_lambda_eq': np.array(path_lambda_eq),
             'path_lambda_ineq': np.array(path_lambda_ineq),
             'errors': errors,
             'violations': violations,
-            'outer_iterations': outer_iter + 1,
+            'iterations': outer_iter + 1,  # Usar iterations estándar
             'converged': violation < tol,
             'method': 'augmented_lagrangian'
         }
@@ -303,14 +303,14 @@ class LagrangeMultiplierOptimizer:
             
             # Evaluar restricciones y sus jacobianos
             if constraints_eq:
-                h_vals = np.array([h(*x) for h in constraints_eq])
+                h_vals = np.array([h(x) for h in constraints_eq])
                 A_eq = np.array([jac(*x) for jac in constraints_eq_jac])
             else:
                 h_vals = np.array([])
                 A_eq = np.zeros((0, n))
             
             if constraints_ineq:
-                g_vals = np.array([g(*x) for g in constraints_ineq])
+                g_vals = np.array([g(x) for g in constraints_ineq])
                 A_ineq = np.array([jac(*x) for jac in constraints_ineq_jac])
                 
                 # Identificar restricciones activas
@@ -379,9 +379,9 @@ class LagrangeMultiplierOptimizer:
             lam_new = lam + alpha * delta_lambda
             
             # Función de mérito (violación de restricciones)
-            violation = sum([h(*x_new)**2 for h in constraints])
+            violation = sum([h(x_new)**2 for h in constraints])
             
-            if violation < sum([h(*x)**2 for h in constraints]):
+            if violation < sum([h(x)**2 for h in constraints]):
                 return alpha
             
             alpha *= 0.5
@@ -450,9 +450,9 @@ class LagrangeMultiplierOptimizer:
             constraint_violation = 0.0
             
             if constraints_eq:
-                constraint_violation += sum([h(*x_eval)**2 for h in constraints_eq])
+                constraint_violation += sum([h(x_eval)**2 for h in constraints_eq])
             if constraints_ineq:
-                constraint_violation += sum([max(0, g(*x_eval))**2 for g in constraints_ineq])
+                constraint_violation += sum([max(0, g(x_eval))**2 for g in constraints_ineq])
             
             return f_val + penalty * constraint_violation
         

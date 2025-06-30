@@ -12,7 +12,6 @@ class PenaltyBarrierOptimizer:
     
     def __init__(self):
         self.available_methods = [
-            'exterior_penalty',
             'interior_penalty_barrier',
             'logarithmic_barrier',
             'inverse_barrier',
@@ -52,12 +51,12 @@ class PenaltyBarrierOptimizer:
                 # Penalización para restricciones de igualdad: μ * h(x)²
                 if constraints_eq:
                     for h in constraints_eq:
-                        penalty += h(*x_eval)**2
+                        penalty += h(x_eval)**2
                 
                 # Penalización para restricciones de desigualdad: μ * max(0, g(x))²
                 if constraints_ineq:
                     for g in constraints_ineq:
-                        penalty += max(0, g(*x_eval))**2
+                        penalty += max(0, g(x_eval))**2
                 
                 return f_val + mu * penalty
             
@@ -69,7 +68,7 @@ class PenaltyBarrierOptimizer:
                 # Gradiente de penalización para igualdades: 2μ * h(x) * ∇h(x)
                 if constraints_eq:
                     for h in constraints_eq:
-                        h_val = h(*x_eval)
+                        h_val = h(x_eval)
                         # Aproximar gradiente numéricamente
                         h_grad = self._numerical_gradient(h, x_eval)
                         grad_penalty += 2 * h_val * h_grad
@@ -77,7 +76,7 @@ class PenaltyBarrierOptimizer:
                 # Gradiente para desigualdades: 2μ * max(0,g(x)) * ∇g(x)
                 if constraints_ineq:
                     for g in constraints_ineq:
-                        g_val = g(*x_eval)
+                        g_val = g(x_eval)
                         if g_val > 0:
                             g_grad = self._numerical_gradient(g, x_eval)
                             grad_penalty += 2 * g_val * g_grad
@@ -94,9 +93,9 @@ class PenaltyBarrierOptimizer:
             # Calcular violación de restricciones
             violation = 0.0
             if constraints_eq:
-                violation += sum([h(*x)**2 for h in constraints_eq])
+                violation += sum([h(x)**2 for h in constraints_eq])
             if constraints_ineq:
-                violation += sum([max(0, g(*x))**2 for g in constraints_ineq])
+                violation += sum([max(0, g(x))**2 for g in constraints_ineq])
             
             violations.append(violation)
             
@@ -114,7 +113,7 @@ class PenaltyBarrierOptimizer:
             'errors': errors,
             'violations': violations,
             'penalties': penalties,
-            'outer_iterations': outer_iter + 1,
+            'iterations': outer_iter + 1,
             'converged': violation < tol,
             'method': 'exterior_penalty'
         }
@@ -135,8 +134,8 @@ class PenaltyBarrierOptimizer:
         """
         # Verificar factibilidad inicial
         for i, g in enumerate(constraints_ineq):
-            if g(*x0) >= 0:
-                raise ValueError(f"Punto inicial no es estrictamente factible. Restricción {i}: g(x0) = {g(*x0)}")
+            if g(x0) >= 0:
+                raise ValueError(f"Punto inicial no es estrictamente factible. Restricción {i}: g(x0) = {g(x0)}")
         
         x = x0.copy()
         mu = barrier_start
@@ -154,7 +153,7 @@ class PenaltyBarrierOptimizer:
                 barrier = 0.0
                 
                 for g in constraints_ineq:
-                    g_val = g(*x_eval)
+                    g_val = g(x_eval)
                     if g_val >= 0:
                         return np.inf  # Fuera de la región factible
                     barrier -= np.log(-g_val)
@@ -167,7 +166,7 @@ class PenaltyBarrierOptimizer:
                 grad_barrier = np.zeros_like(grad_f)
                 
                 for g in constraints_ineq:
-                    g_val = g(*x_eval)
+                    g_val = g(x_eval)
                     if g_val >= 0:
                         return np.full_like(grad_f, np.inf)
                     
@@ -184,7 +183,7 @@ class PenaltyBarrierOptimizer:
             errors.extend([func(*xi) for xi in result['path'][1:]])
             
             # Calcular violación (distancia a la frontera)
-            violation = min([-g(*x) for g in constraints_ineq])
+            violation = min([-g(x) for g in constraints_ineq])
             violations.append(violation)
             
             # Verificar convergencia
@@ -201,7 +200,7 @@ class PenaltyBarrierOptimizer:
             'errors': errors,
             'violations': violations,
             'barriers': barriers,
-            'outer_iterations': outer_iter + 1,
+            'iterations': outer_iter + 1,
             'converged': mu < tol,
             'method': 'logarithmic_barrier'
         }
@@ -221,8 +220,8 @@ class PenaltyBarrierOptimizer:
         """
         # Verificar factibilidad inicial
         for i, g in enumerate(constraints_ineq):
-            if g(*x0) >= 0:
-                raise ValueError(f"Punto inicial no es estrictamente factible. Restricción {i}: g(x0) = {g(*x0)}")
+            if g(x0) >= 0:
+                raise ValueError(f"Punto inicial no es estrictamente factible. Restricción {i}: g(x0) = {g(x0)}")
         
         x = x0.copy()
         mu = barrier_start
@@ -280,7 +279,7 @@ class PenaltyBarrierOptimizer:
             'path': np.array(path),
             'errors': errors,
             'barriers': barriers,
-            'outer_iterations': outer_iter + 1,
+            'iterations': outer_iter + 1,
             'converged': mu < tol,
             'method': 'inverse_barrier'
         }
@@ -362,7 +361,7 @@ class PenaltyBarrierOptimizer:
             # Verificar convergencia
             violation_eq = 0.0
             if constraints_eq:
-                violation_eq = sum([h(*x)**2 for h in constraints_eq])
+                violation_eq = sum([h(x)**2 for h in constraints_eq])
             
             if violation_eq < tol and mu_b < tol:
                 break
@@ -375,20 +374,26 @@ class PenaltyBarrierOptimizer:
             'x': x,
             'path': np.array(path),
             'errors': errors,
-            'outer_iterations': outer_iter + 1,
+            'iterations': outer_iter + 1,
             'converged': violation_eq < tol and mu_b < tol,
             'method': 'mixed_penalty_barrier'
         }
     
     def _numerical_gradient(self, func: Callable, x: np.ndarray, h: float = 1e-8) -> np.ndarray:
-        """Calcula el gradiente numéricamente usando diferencias finitas"""
+        """Calcula el gradiente numérico de una función"""
         grad = np.zeros_like(x)
         for i in range(len(x)):
             x_plus = x.copy()
             x_minus = x.copy()
             x_plus[i] += h
             x_minus[i] -= h
-            grad[i] = (func(*x_plus) - func(*x_minus)) / (2 * h)
+            
+            # Intentar con argumentos desempaquetados primero, luego con array
+            try:
+                grad[i] = (func(*x_plus) - func(*x_minus)) / (2 * h)
+            except TypeError:
+                # Si falla, la función espera un array
+                grad[i] = (func(x_plus) - func(x_minus)) / (2 * h)
         return grad
     
     def _unconstrained_optimization(self, func: Callable, grad: Callable, x0: np.ndarray,

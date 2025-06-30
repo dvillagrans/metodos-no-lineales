@@ -18,26 +18,26 @@ class ConstrainedOptimizer:
             'feasible_direction_method'
         ]
     
-    def projected_gradient(self, func: Callable, grad: Callable, 
-                          constraints_eq: List[Callable] = None,
-                          constraints_eq_jac: List[Callable] = None,
-                          x0: np.ndarray = None, 
+    def projected_gradient(self, func: Callable, grad: Callable, x0: np.ndarray,
+                          constraints: Optional[Dict] = None,
                           learning_rate: float = 0.01,
                           max_iter: int = 1000, 
                           tol: float = 1e-6) -> Dict[str, Any]:
         """
-        Método de gradiente proyectado para restricciones de igualdad
+        Método de gradiente proyectado para restricciones de igualdad y desigualdad
         
         Args:
             func: Función objetivo
             grad: Gradiente de la función objetivo
-            constraints_eq: Lista de restricciones de igualdad h(x) = 0
-            constraints_eq_jac: Lista de jacobianos de las restricciones
             x0: Punto inicial
+            constraints: Diccionario con información de restricciones
             learning_rate: Tasa de aprendizaje
             max_iter: Máximo número de iteraciones
             tol: Tolerancia para convergencia
         """
+        if x0 is None:
+            raise ValueError("El punto inicial x0 no puede ser None")
+            
         x = x0.copy()
         path = [x.copy()]
         errors = [func(*x)]
@@ -49,30 +49,38 @@ class ConstrainedOptimizer:
             if np.linalg.norm(gradient) < tol:
                 break
             
-            # Calcular matriz jacobiana de restricciones
-            if constraints_eq and constraints_eq_jac:
-                A = np.array([jac(*x) for jac in constraints_eq_jac])
-                
-                # Proyector ortogonal al espacio nulo de A
-                if A.size > 0:
-                    # P = I - A^T(AA^T)^(-1)A
+            # Aplicar proyección según el tipo de restricción
+            projected_gradient = gradient
+            
+            if constraints:
+                if constraints['type'] == 'eq':
+                    # Para restricciones de igualdad: proyectar el gradiente
+                    jac = constraints['jac'](x)
+                    jac = jac.reshape(1, -1) if jac.ndim == 1 else jac
+                    
+                    # Proyector ortogonal al espacio nulo de A
                     try:
-                        AAT_inv = np.linalg.pinv(A @ A.T)
-                        P = np.eye(len(x)) - A.T @ AAT_inv @ A
+                        AAT_inv = np.linalg.pinv(jac @ jac.T)
+                        P = np.eye(len(x)) - jac.T @ AAT_inv @ jac
                         projected_gradient = P @ gradient
                     except np.linalg.LinAlgError:
                         projected_gradient = gradient
-                else:
+                        
+                elif constraints['type'] == 'ineq':
+                    # Para desigualdades: usar método de proyección simple
                     projected_gradient = gradient
-            else:
-                projected_gradient = gradient
             
             # Actualizar posición
             x_new = x - learning_rate * projected_gradient
             
-            # Proyectar sobre restricciones (Newton para h(x) = 0)
-            if constraints_eq:
-                x_new = self._project_onto_constraints(x_new, constraints_eq, constraints_eq_jac)
+            # Proyectar sobre restricciones si es necesario
+            if constraints:
+                if constraints['type'] == 'eq':
+                    # Proyectar usando Newton para h(x) = 0
+                    x_new = self._project_onto_equality_constraint(x_new, constraints)
+                elif constraints['type'] == 'ineq':
+                    # Proyectar sobre región factible
+                    x_new = self._project_onto_feasible_region(x_new, constraints)
             
             x = x_new
             path.append(x.copy())
@@ -80,8 +88,12 @@ class ConstrainedOptimizer:
             
             # Calcular violación de restricciones
             violation = 0
-            if constraints_eq:
-                violation = sum([abs(h(*x)) for h in constraints_eq])
+            if constraints:
+                constraint_val = constraints['fun'](x)
+                if constraints['type'] == 'eq':
+                    violation = abs(constraint_val)
+                elif constraints['type'] == 'ineq':
+                    violation = max(0, -constraint_val)  # violación si constraint_val < 0
             violations.append(violation)
         
         return {
@@ -94,92 +106,76 @@ class ConstrainedOptimizer:
             'method': 'projected_gradient'
         }
     
-    def reduced_gradient(self, func: Callable, grad: Callable,
-                        constraints_eq: List[Callable],
-                        constraints_eq_jac: List[Callable],
-                        x0: np.ndarray,
+    def reduced_gradient(self, func: Callable, grad: Callable, x0: np.ndarray,
+                        constraints: Optional[Dict] = None,
                         basic_vars: List[int] = None,
                         learning_rate: float = 0.01,
                         max_iter: int = 1000,
                         tol: float = 1e-6) -> Dict[str, Any]:
         """
         Método de gradiente reducido para restricciones de igualdad
-        
-        Args:
-            basic_vars: Índices de variables básicas (dependientes)
+        Mejorada: proyecta el punto inicial y cada iterado sobre la restricción de igualdad.
         """
+        if x0 is None:
+            raise ValueError("El punto inicial x0 no puede ser None")
+
         x = x0.copy()
         n = len(x)
-        m = len(constraints_eq)  # número de restricciones
-        
-        if basic_vars is None:
-            basic_vars = list(range(m))  # Primeras m variables como básicas
-        
-        nonbasic_vars = [i for i in range(n) if i not in basic_vars]
-        
+
+        # Si no hay restricción de igualdad, usar gradiente proyectado
+        if not constraints or constraints['type'] != 'eq':
+            return self.projected_gradient(func, grad, x0, constraints, learning_rate, max_iter, tol)
+
+        # Proyectar el punto inicial sobre la restricción de igualdad
+        x = self._project_onto_equality_constraint(x, constraints)
+
         path = [x.copy()]
         errors = [func(*x)]
         violations = []
-        
+
         for i in range(max_iter):
             gradient = grad(*x)
-            
-            # Matriz jacobiana de restricciones
-            A = np.array([jac(*x) for jac in constraints_eq_jac])
-            
-            # Dividir jacobiana en básica y no básica
-            A_B = A[:, basic_vars]  # m x m
-            A_N = A[:, nonbasic_vars]  # m x (n-m)
-            
-            # Gradiente dividido
-            g_B = gradient[basic_vars]
-            g_N = gradient[nonbasic_vars]
-            
+
+            # Proyectar el gradiente sobre el subespacio tangente a la restricción
+            jac = constraints['jac'](x)
+            jac = jac.reshape(1, -1) if jac.ndim == 1 else jac
             try:
-                # Gradiente reducido: r = g_N - A_N^T (A_B^T)^(-1) g_B
-                A_B_T_inv = np.linalg.inv(A_B.T)
-                reduced_grad = g_N - A_N.T @ A_B_T_inv @ g_B
-                
-                if np.linalg.norm(reduced_grad) < tol:
-                    break
-                
-                # Dirección en variables no básicas
-                d_N = -reduced_grad
-                
-                # Dirección en variables básicas: d_B = -(A_B)^(-1) A_N d_N
-                A_B_inv = np.linalg.inv(A_B)
-                d_B = -A_B_inv @ A_N @ d_N
-                
-                # Construir dirección completa
-                direction = np.zeros(n)
-                direction[nonbasic_vars] = d_N
-                direction[basic_vars] = d_B
-                
-                # Búsqueda de línea
-                alpha = self._line_search_constrained(func, constraints_eq, x, direction)
-                x = x + alpha * direction
-                
-            except np.linalg.LinAlgError:
-                # Si falla, usar gradiente proyectado
-                A_pinv = np.linalg.pinv(A)
-                P = np.eye(n) - A.T @ A_pinv.T
+                AAT_inv = np.linalg.pinv(jac @ jac.T)
+                P = np.eye(n) - jac.T @ AAT_inv @ jac
                 direction = -P @ gradient
-                x = x + learning_rate * direction
-            
+            except np.linalg.LinAlgError:
+                direction = -gradient
+
+            # Si la dirección es muy pequeña, convergió
+            if np.linalg.norm(direction) < tol:
+                break
+
+            # Paso en la dirección reducida
+            x_new = x + learning_rate * direction
+            # Proyectar el nuevo punto sobre la restricción de igualdad
+            x_new = self._project_onto_equality_constraint(x_new, constraints)
+
+            x = x_new
             path.append(x.copy())
             errors.append(func(*x))
-            
-            # Violación de restricciones
-            violation = sum([abs(h(*x)) for h in constraints_eq])
+
+            # Calcular violación de la restricción
+            violation = 0
+            if constraints:
+                constraint_val = constraints['fun'](x)
+                if constraints['type'] == 'eq':
+                    violation = abs(constraint_val)
+                elif constraints['type'] == 'ineq':
+                    violation = max(0, -constraint_val)
             violations.append(violation)
-        
+
         return {
             'x': x,
             'path': np.array(path),
             'errors': errors,
             'violations': violations,
             'iterations': i + 1,
-            'converged': np.linalg.norm(reduced_grad if 'reduced_grad' in locals() else gradient) < tol,
+            'converged': np.linalg.norm(direction) < tol,
             'method': 'reduced_gradient'
         }
     
@@ -300,6 +296,44 @@ class ConstrainedOptimizer:
                 x_proj = x_proj - delta
             except np.linalg.LinAlgError:
                 break
+        
+        return x_proj
+    
+    def _project_onto_equality_constraint(self, x: np.ndarray, constraints: Dict) -> np.ndarray:
+        """Proyecta un punto sobre una restricción de igualdad usando Newton"""
+        x_proj = x.copy()
+        
+        for _ in range(10):  # máximo 10 iteraciones
+            h_val = constraints['fun'](x_proj)
+            if abs(h_val) < 1e-8:
+                break
+            
+            jac = constraints['jac'](x_proj)
+            if np.linalg.norm(jac) < 1e-12:
+                break
+                
+            # Un paso de Newton para h(x) = 0
+            step = h_val / (jac @ jac)
+            x_proj = x_proj - step * jac
+        
+        return x_proj
+    
+    def _project_onto_feasible_region(self, x: np.ndarray, constraints: Dict) -> np.ndarray:
+        """Proyecta un punto sobre la región factible para restricciones de desigualdad"""
+        constraint_val = constraints['fun'](x)
+        
+        if constraint_val >= 0:
+            # Ya está en la región factible
+            return x
+        
+        # Proyección sobre la frontera usando gradiente
+        jac = constraints['jac'](x)
+        if np.linalg.norm(jac) < 1e-12:
+            return x
+            
+        # Proyectar sobre g(x) = 0
+        alpha = -constraint_val / (jac @ jac)
+        x_proj = x + alpha * jac
         
         return x_proj
     

@@ -120,6 +120,21 @@
                             </select>
                         </div>
 
+                        <!-- Ejercicios Predefinidos -->
+                        <div class="mb-3">
+                            <label for="exerciseSelect" class="form-label">
+                                <i class="fas fa-book me-1"></i>
+                                Ejercicios Predefinidos
+                            </label>
+                            <select class="form-select" id="exerciseSelect">
+                                <option value="">Personalizar parámetros</option>
+                                <option value="ejercicio1">Ejercicio 1: f(x,y) = x₁⁴ + x₂² - 4x₁² - 4x₂</option>
+                                <option value="ejercicio2">Ejercicio 2: f(x,y) = x₁² - 2x₁x₂ + 4x₂²</option>
+                                <option value="ejercicio3">Ejercicio 3: f(x,y) = (x₁-2)² + (x₂-2)² + x₁x₂</option>
+                            </select>
+                            <small class="text-muted">Selecciona un ejercicio para cargar sus parámetros</small>
+                        </div>
+
                         <!-- Punto inicial -->
                         <div class="mb-3">
                             <label class="form-label">Punto Inicial</label>
@@ -287,6 +302,57 @@
         e.preventDefault();
         runNewtonOptimization();
     });
+
+    // Event listener para ejercicios predefinidos
+    document.getElementById('exerciseSelect').addEventListener('change', function () {
+        const exercise = this.value;
+
+        if (exercise === 'ejercicio1') {
+            // Ejercicio 1: f(x,y) = x₁⁴ + x₂² - 4x₁² - 4x₂
+            document.getElementById('x0').value = '1';
+            document.getElementById('y0').value = '1';
+            document.getElementById('tolerance').value = '0.000001';
+            document.getElementById('maxIter').value = '100';
+            updateNewtonFunctionDisplay('f(x,y) = x₁⁴ + x₂² - 4x₁² - 4x₂', 'mínimo local ≈ [0, 2]');
+        } else if (exercise === 'ejercicio2') {
+            // Ejercicio 2: f(x,y) = x₁² - 2x₁x₂ + 4x₂²
+            document.getElementById('x0').value = '2';
+            document.getElementById('y0').value = '-1';
+            document.getElementById('tolerance').value = '0.000001';
+            document.getElementById('maxIter').value = '100';
+            updateNewtonFunctionDisplay('f(x,y) = x₁² - 2x₁x₂ + 4x₂²', 'mínimo global ≈ [0, 0]');
+        } else if (exercise === 'ejercicio3') {
+            // Ejercicio 3: f(x,y) = (x₁-2)² + (x₂-2)² + x₁x₂
+            document.getElementById('x0').value = '0';
+            document.getElementById('y0').value = '0';
+            document.getElementById('tolerance').value = '0.000001';
+            document.getElementById('maxIter').value = '100';
+            updateNewtonFunctionDisplay('f(x,y) = (x₁-2)² + (x₂-2)² + x₁x₂', 'mínimo ≈ [1, 1]');
+        }
+    });
+
+    // Función para actualizar la visualización de la función
+    function updateNewtonFunctionDisplay(formula, minimum) {
+        // Buscar el elemento donde se muestra la función objetivo
+        const formulaElements = document.querySelectorAll('.math-expression');
+        const minimumElements = document.querySelectorAll('.text-muted');
+
+        if (formulaElements.length > 0) {
+            formulaElements[0].innerHTML = `$$${formula}$$`;
+            // Re-renderizar MathJax si está disponible
+            if (typeof MathJax !== 'undefined') {
+                MathJax.typesetPromise([formulaElements[0]]);
+            }
+        }
+
+        // Actualizar el texto del mínimo esperado
+        for (let elem of minimumElements) {
+            if (elem.textContent.includes('Mínimo') || elem.textContent.includes('mínimo')) {
+                elem.innerHTML = `<strong>Valor esperado:</strong> ${minimum}`;
+                break;
+            }
+        }
+    }
 
     function runNewtonOptimization() {
         const formData = {

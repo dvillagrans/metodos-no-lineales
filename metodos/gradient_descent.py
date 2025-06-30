@@ -24,28 +24,49 @@ class GradientDescentOptimizer:
                         tol: float = 1e-6) -> Dict[str, Any]:
         """
         Gradiente descendente básico
+        Algoritmo clásico para minimizar funciones diferenciables. En cada iteración, se avanza en la dirección opuesta al gradiente,
+        que es la dirección de mayor descenso local de la función objetivo.
+        Parámetros:
+            func: función objetivo a minimizar.
+            grad: función que calcula el gradiente de 'func'.
+            x0: punto inicial (vector numpy).
+            learning_rate: tamaño del paso (constante).
+            max_iter: máximo de iteraciones permitidas.
+            tol: tolerancia para la norma del gradiente (criterio de convergencia).
+        Devuelve:
+            Diccionario con el punto final, la trayectoria, los errores, número de iteraciones, convergencia y método usado.
         """
+        # Copiamos el punto inicial para no modificar el argumento original
         x = x0.copy()
+        # Guardamos la trayectoria de puntos visitados
         path = [x.copy()]
+        # Guardamos el valor de la función objetivo en cada iteración
         errors = [func(*x)]
         
+        # Iteramos hasta alcanzar el máximo de iteraciones o la tolerancia
         for i in range(max_iter):
+            # Calculamos el gradiente en el punto actual
             gradient = grad(*x)
             
+            # Si la norma del gradiente es menor que la tolerancia, consideramos que convergió
             if np.linalg.norm(gradient) < tol:
                 break
-                
+            
+            # Actualizamos el punto: avanzamos en la dirección opuesta al gradiente
+            # El learning_rate controla el tamaño del paso (si es muy grande puede divergir, si es muy pequeño puede ser lento)
             x = x - learning_rate * gradient
+            # Guardamos el nuevo punto y el error para análisis posterior
             path.append(x.copy())
             errors.append(func(*x))
         
+        # Devolvemos los resultados en un diccionario estándar
         return {
-            'x': x,
-            'path': np.array(path),
-            'errors': errors,
-            'iterations': i + 1,
-            'converged': np.linalg.norm(gradient) < tol,
-            'method': 'gradient_descent'
+            'x': x,  # Punto final encontrado
+            'path': np.array(path),  # Trayectoria completa
+            'errors': errors,  # Valores de la función objetivo
+            'iterations': i + 1,  # Número de iteraciones realizadas
+            'converged': np.linalg.norm(gradient) < tol,  # Indicador de convergencia
+            'method': 'gradient_descent'  # Nombre del método
         }
     
     def gradient_descent_momentum(self, func: Callable, grad: Callable, x0: np.ndarray,

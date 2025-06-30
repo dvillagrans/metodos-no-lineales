@@ -105,6 +105,22 @@
                         </select>
                     </div>
 
+                    <!-- Ejercicios Predefinidos -->
+                    <div class="mb-3">
+                        <label for="exerciseSelect" class="form-label">
+                            <i class="fas fa-book me-1"></i>
+                            Ejercicios Predefinidos
+                        </label>
+                        <select class="form-select" id="exerciseSelect">
+                            <option value="">Personalizar parámetros</option>
+                            <option value="ejercicio1">Ejercicio 1: f(x,y) = (x₁-1)² + (x₂+2)²</option>
+                            <option value="ejercicio2">Ejercicio 2: f(x,y) = x₁² + x₂² + x₁x₂</option>
+                            <option value="ejercicio3">Ejercicio 3: f(x,y) = (x₁-3)² + (x₂-1)² + 5</option>
+                        </select>
+                        <small class="text-muted">Selecciona un ejercicio para cargar sus parámetros
+                            automáticamente</small>
+                    </div>
+
                     <!-- Punto inicial -->
                     <div class="mb-3">
                         <label class="form-label">Punto Inicial (x₀, y₀)</label>
@@ -123,21 +139,27 @@
                     <!-- Tasa de aprendizaje -->
                     <div class="mb-3">
                         <label for="learningRate" class="form-label">Tasa de Aprendizaje (α)</label>
-                        <input type="number" class="form-control" id="learningRate" value="0.1" step="0.01" min="0.001"
-                            max="1.0">
+                        <input type="number" class="form-control" id="learningRate" name="learningRate"
+                            placeholder="Ej: 0.01" value="0.1" step="any" min="0" autocomplete="off">
+                        <small class="form-text text-muted">Puedes escribir cualquier valor positivo (ejemplo: 0.01,
+                            0.1, 0.001...)</small>
                     </div>
 
                     <!-- Tolerancia -->
                     <div class="mb-3">
                         <label for="tolerance" class="form-label">Tolerancia</label>
-                        <input type="number" class="form-control" id="tolerance" value="0.000001" step="0.000001"
-                            min="0.000001">
+                        <input type="number" class="form-control" id="tolerance" name="tolerance"
+                            placeholder="Ej: 0.000001" value="0.000001" step="any" min="0" autocomplete="off">
+                        <small class="form-text text-muted">Puedes escribir cualquier valor positivo (ejemplo: 1e-6,
+                            0.0001, 0.01...)</small>
                     </div>
 
                     <!-- Iteraciones máximas -->
                     <div class="mb-3">
                         <label for="maxIter" class="form-label">Iteraciones Máximas</label>
-                        <input type="number" class="form-control" id="maxIter" value="1000" min="1" max="10000">
+                        <input type="number" class="form-control" id="maxIter" name="maxIter" placeholder="Ej: 1000"
+                            value="1000" min="1" autocomplete="off">
+                        <small class="form-text text-muted">Puedes escribir cualquier número entero positivo</small>
                     </div>
 
                     <!-- Botones -->
@@ -215,21 +237,21 @@
                     <!-- Convergencia -->
                     <div class="tab-pane fade show active" id="convergence" role="tabpanel">
                         <div class="chart-container">
-                            <canvas id="convergenceChart"></canvas>
+                            <canvas id="convergenceChart" style="width:100%;height:350px;"></canvas>
                         </div>
                     </div>
 
                     <!-- Trayectoria -->
                     <div class="tab-pane fade" id="path" role="tabpanel">
                         <div class="chart-container">
-                            <canvas id="pathChart"></canvas>
+                            <canvas id="pathChart" style="width:100%;height:350px;"></canvas>
                         </div>
                     </div>
 
                     <!-- Superficie 3D -->
                     <div class="tab-pane fade" id="surface" role="tabpanel">
                         <div class="chart-container">
-                            <canvas id="surfaceChart"></canvas>
+                            <div id="surfaceChart" style="width:100%;height:350px;"></div>
                         </div>
                     </div>
                 </div>
@@ -300,9 +322,62 @@
         form.addEventListener('submit', handleOptimization);
         document.getElementById('resetForm').addEventListener('click', resetForm);
         document.getElementById('exportResults').addEventListener('click', exportResults);
+        document.getElementById('exerciseSelect').addEventListener('change', loadExercise);
 
         // Inicializar gráficos vacíos
         initializeCharts();
+
+        // Función para cargar ejercicios predefinidos
+        function loadExercise() {
+            const exercise = document.getElementById('exerciseSelect').value;
+
+            if (exercise === 'ejercicio1') {
+                // Ejercicio 1: f(x,y) = (x₁-1)² + (x₂+2)²
+                document.getElementById('x0').value = '2.5';
+                document.getElementById('y0').value = '-4';
+                document.getElementById('learningRate').value = '0.02';
+                document.getElementById('maxIter').value = '1000';
+                document.getElementById('tolerance').value = '0.000001';
+                updateFunctionDisplay('f(x,y) = (x₁-1)² + (x₂+2)²', 'x₁ = 1, x₂ = -2');
+            } else if (exercise === 'ejercicio2') {
+                // Ejercicio 2: f(x,y) = x₁² + x₂² + x₁x₂
+                document.getElementById('x0').value = '1';
+                document.getElementById('y0').value = '1';
+                document.getElementById('learningRate').value = '0.03';
+                document.getElementById('maxIter').value = '1000';
+                document.getElementById('tolerance').value = '0.000001';
+                updateFunctionDisplay('f(x,y) = x₁² + x₂² + x₁x₂', 'x ≈ [0, 0]');
+            } else if (exercise === 'ejercicio3') {
+                // Ejercicio 3: f(x,y) = (x₁-3)² + (x₂-1)² + 5
+                document.getElementById('x0').value = '0';
+                document.getElementById('y0').value = '0';
+                document.getElementById('learningRate').value = '0.04';
+                document.getElementById('maxIter').value = '1000';
+                document.getElementById('tolerance').value = '0.000001';
+                updateFunctionDisplay('f(x,y) = (x₁-3)² + (x₂-1)² + 5', 'x₁ = 3, x₂ = 1');
+            } else {
+                // Restaurar función por defecto
+                updateFunctionDisplay('f(x,y) = (x-1)² + (y-2)²', '(1, 2) con f* = 0');
+            }
+        }
+
+        // Función para actualizar la visualización de la función
+        function updateFunctionDisplay(formula, minimum) {
+            const formulaElement = document.querySelector('.math-expression');
+            const minimumElement = document.querySelector('.text-muted.small.mb-0');
+
+            if (formulaElement) {
+                formulaElement.innerHTML = `$$${formula}$$`;
+                // Re-renderizar MathJax si está disponible
+                if (typeof MathJax !== 'undefined') {
+                    MathJax.typesetPromise([formulaElement]);
+                }
+            }
+
+            if (minimumElement) {
+                minimumElement.innerHTML = `<strong>Valor esperado:</strong> ${minimum}`;
+            }
+        }
 
         async function handleOptimization(e) {
             e.preventDefault();

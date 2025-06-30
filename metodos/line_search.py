@@ -108,32 +108,44 @@ class LineSearchOptimizer:
         """
         Búsqueda de línea usando sección áurea
         """
+        # Copiamos el punto inicial para no modificar el argumento original
         x = x0.copy()
+        # Guardamos el recorrido de los puntos visitados (trayectoria)
         path = [x.copy()]
+        # Guardamos el valor de la función objetivo en cada iteración (para análisis de convergencia)
         errors = [func(*x)]
         
+        # Iteramos hasta alcanzar el máximo de iteraciones o la tolerancia deseada
         for i in range(max_iter):
+            # Calculamos el gradiente en el punto actual
             gradient = grad(*x)
             
+            # Si la norma del gradiente es menor que la tolerancia, consideramos que convergió
             if np.linalg.norm(gradient) < tol:
                 break
             
-            # Usar dirección proporcionada o gradiente descendente
+            # Determinamos la dirección de búsqueda:
+            # Si no se proporciona una dirección, usamos el gradiente descendente clásico
             if direction is None:
                 search_direction = -gradient
             else:
+                # Si se proporciona, usamos la dirección dada (útil para métodos compuestos)
                 search_direction = direction
             
-            # Función unidimensional para la búsqueda de línea
+            # Definimos una función unidimensional phi(alpha) que representa la función objetivo
+            # a lo largo de la dirección de búsqueda, partiendo de x
             def phi(alpha):
+                # Evaluamos la función objetivo en el punto x + alpha * dirección
                 return func(*(x + alpha * search_direction))
             
-            # Búsqueda de línea usando sección áurea
+            # Aplicamos el método de sección áurea para encontrar el valor óptimo de alpha
+            # en el intervalo [a, b] que minimiza phi(alpha)
             alpha = self._golden_section_search(phi, a, b, tol)
             
-            # Actualizar posición
+            # Actualizamos la posición: avanzamos desde x en la dirección óptima encontrada
             x = x + alpha * search_direction
             
+            # Guardamos el nuevo punto y el error para análisis posterior
             path.append(x.copy())
             errors.append(func(*x))
         
@@ -337,30 +349,41 @@ class LineSearchOptimizer:
         return alpha
     
     def _golden_section_search(self, func: Callable, a: float, b: float, tol: float) -> float:
-        """Implementa búsqueda de sección áurea"""
-        phi = (1 + np.sqrt(5)) / 2  # Número áureo
-        resphi = 2 - phi
+        """
+        Implementa búsqueda de sección áurea para encontrar el mínimo de una función unimodal en un intervalo [a, b].
+        Este método es eficiente porque reduce el intervalo de búsqueda usando la proporción áurea, minimizando el número de evaluaciones de la función.
+        """
+        # Calculamos el número áureo (phi) y su complemento (resphi)
+        phi = (1 + np.sqrt(5)) / 2  # Número áureo ≈ 1.618
+        resphi = 2 - phi            # resphi ≈ 0.382
         
-        # Inicializar puntos
+        # Inicializamos los dos puntos internos del intervalo usando la proporción áurea
         x1 = a + resphi * (b - a)
         x2 = a + (1 - resphi) * (b - a)
+        # Evaluamos la función en ambos puntos
         f1 = func(x1)
         f2 = func(x2)
         
+        # Repetimos el proceso hasta que el intervalo sea suficientemente pequeño (menor que la tolerancia)
         while abs(b - a) > tol:
+            # Comparamos los valores de la función en los puntos internos
             if f1 < f2:
+                # Si f1 < f2, el mínimo está en [a, x2], así que reducimos el intervalo por la derecha
                 b = x2
                 x2 = x1
                 f2 = f1
+                # Calculamos el nuevo punto x1 y evaluamos la función allí
                 x1 = a + resphi * (b - a)
                 f1 = func(x1)
             else:
+                # Si f2 <= f1, el mínimo está en [x1, b], así que reducimos el intervalo por la izquierda
                 a = x1
                 x1 = x2
                 f1 = f2
+                # Calculamos el nuevo punto x2 y evaluamos la función allí
                 x2 = a + (1 - resphi) * (b - a)
                 f2 = func(x2)
-        
+        # Al finalizar, devolvemos el punto medio del intervalo como la mejor aproximación al mínimo
         return (a + b) / 2
     
     def _fibonacci_search(self, func: Callable, a: float, b: float, n: int) -> float:

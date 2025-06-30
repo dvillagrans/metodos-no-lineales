@@ -94,6 +94,21 @@
                         </select>
                     </div>
 
+                    <!-- Ejercicios Predefinidos -->
+                    <div class="mb-3">
+                        <label for="exerciseSelect" class="form-label">
+                            <i class="fas fa-book me-1"></i>
+                            Ejercicios Predefinidos
+                        </label>
+                        <select class="form-select" id="exerciseSelect">
+                            <option value="">Personalizar parámetros</option>
+                            <option value="ejercicio1">Ejercicio 1: min x² - búsqueda unidimensional</option>
+                            <option value="ejercicio2">Ejercicio 2: min x₁² + x₂² con dirección (-1, -1)</option>
+                            <option value="ejercicio3">Ejercicio 3: min (x-2)² + (y-1)² con Armijo</option>
+                        </select>
+                        <small class="text-muted">Selecciona un ejercicio para cargar sus parámetros</small>
+                    </div>
+
                     <!-- Punto inicial -->
                     <div class="mb-3">
                         <label class="form-label">Punto Inicial</label>
@@ -380,6 +395,9 @@
         document.getElementById('resetForm').addEventListener('click', function () {
             resetForm();
         });
+
+        // Event listener para ejercicios predefinidos
+        document.getElementById('exerciseSelect').addEventListener('change', loadExercise);
     }
 
     async function runOptimization() {
@@ -502,6 +520,83 @@
         // Ocultar resultados
         document.getElementById('resultsPanel').style.display = 'none';
         document.getElementById('chartStatus').style.display = 'none';
+    }
+
+    function loadExercise() {
+        const exerciseSelect = document.getElementById('exerciseSelect');
+        const selectedExercise = exerciseSelect.value;
+
+        if (!selectedExercise) {
+            return; // No hay ejercicio seleccionado
+        }
+
+        // Definir los ejercicios con sus parámetros
+        const exercises = {
+            ejercicio1: {
+                // Ejercicio 1: min x² - búsqueda unidimensional simple
+                x0: [2.0, 0.0],
+                method: 'golden_section',
+                tolerance: 1e-6,
+                maxIter: 100,
+                description: "Búsqueda unidimensional de min x² desde x=2",
+                expectedResult: "Óptimo: x = 0, Valor: 0"
+            },
+            ejercicio2: {
+                // Ejercicio 2: min x₁² + x₂² con dirección (-1, -1)
+                x0: [3.0, 3.0],
+                method: 'fibonacci_search',
+                tolerance: 1e-6,
+                maxIter: 100,
+                description: "Minimizar x₁² + x₂² desde (3,3) con dirección (-1,-1)",
+                expectedResult: "Óptimo: (0, 0), Valor: 0"
+            },
+            ejercicio3: {
+                // Ejercicio 3: min (x-2)² + (y-1)² con Armijo
+                x0: [0.0, 0.0],
+                method: 'armijo_backtracking',
+                tolerance: 1e-6,
+                maxIter: 100,
+                description: "Minimizar (x-2)² + (y-1)² desde (0,0) con Armijo",
+                expectedResult: "Óptimo: (2, 1), Valor: 0"
+            }
+        };
+
+        const exercise = exercises[selectedExercise];
+        if (exercise) {
+            // Cargar parámetros en el formulario
+            document.getElementById('x0').value = exercise.x0[0];
+            document.getElementById('y0').value = exercise.x0[1];
+            document.getElementById('method').value = exercise.method;
+            document.getElementById('tolerance').value = exercise.tolerance;
+            document.getElementById('maxIter').value = exercise.maxIter;
+
+            // Actualizar información de la función
+            updateFunctionDisplay(exercise);
+        }
+    }
+
+    function updateFunctionDisplay(exercise) {
+        // Buscar un área para mostrar información del ejercicio
+        const infoContainer = document.querySelector('.info-panel, .parameter-control');
+        if (infoContainer) {
+            let infoDiv = infoContainer.querySelector('.exercise-info');
+            if (!infoDiv) {
+                infoDiv = document.createElement('div');
+                infoDiv.className = 'exercise-info mt-3 p-3 bg-light rounded';
+                infoContainer.appendChild(infoDiv);
+            }
+
+            infoDiv.innerHTML = `
+                <h6 class="text-primary mb-2">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Ejercicio Seleccionado
+                </h6>
+                <div class="small">
+                    <p class="mb-1"><strong>Problema:</strong> ${exercise.description}</p>
+                    <p class="mb-0"><strong>Resultado esperado:</strong> ${exercise.expectedResult}</p>
+                </div>
+            `;
+        }
     }
 </script>
 {% endblock %}

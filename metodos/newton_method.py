@@ -23,42 +23,56 @@ class NewtonOptimizer:
                      regularization: float = 1e-8) -> Dict[str, Any]:
         """
         Método de Newton clásico
+        Resuelve sistemas no lineales usando información de gradiente y hessiana.
+        En cada iteración, se calcula la dirección de Newton resolviendo H * p = -g.
+        Si la hessiana es singular o mal condicionada, se regulariza para evitar problemas numéricos.
+        Si aún así falla, se recurre a un paso de gradiente descendente pequeño.
         """
+        # Copiamos el punto inicial para no modificar el argumento original
         x = x0.copy()
+        # Guardamos la trayectoria de puntos visitados
         path = [x.copy()]
+        # Guardamos el valor de la función objetivo en cada iteración
         errors = [func(*x)]
         
+        # Iteramos hasta alcanzar el máximo de iteraciones o la tolerancia
         for i in range(max_iter):
+            # Calculamos el gradiente en el punto actual
             gradient = grad(*x)
             
+            # Criterio de convergencia: si la norma del gradiente es pequeña, terminamos
             if np.linalg.norm(gradient) < tol:
                 break
             
+            # Calculamos la hessiana en el punto actual
             hessian = hess(*x)
             
-            # Regularización para evitar singularidad
+            # Regularización: si la hessiana es singular o está mal condicionada, sumamos un múltiplo de la identidad
             if np.linalg.det(hessian) == 0 or np.linalg.cond(hessian) > 1e12:
                 hessian += regularization * np.eye(len(x))
             
             try:
-                # Resolver el sistema H * p = -g
+                # Resolvemos el sistema lineal H * p = -g para obtener la dirección de Newton
                 direction = np.linalg.solve(hessian, -gradient)
+                # Actualizamos el punto
                 x = x + direction
             except np.linalg.LinAlgError:
-                # Si falla, usar gradiente descendente
+                # Si la hessiana sigue siendo problemática, hacemos un paso pequeño de gradiente descendente
                 direction = -gradient / np.linalg.norm(gradient)
                 x = x + 0.01 * direction
             
+            # Guardamos el nuevo punto y el error para análisis posterior
             path.append(x.copy())
             errors.append(func(*x))
         
+        # Devolvemos los resultados en un diccionario estándar
         return {
-            'x': x,
-            'path': np.array(path),
-            'errors': errors,
-            'iterations': i + 1,
-            'converged': np.linalg.norm(gradient) < tol,
-            'method': 'newton_method'
+            'x': x,  # Punto final encontrado
+            'path': np.array(path),  # Trayectoria completa
+            'errors': errors,  # Valores de la función objetivo
+            'iterations': i + 1,  # Número de iteraciones realizadas
+            'converged': np.linalg.norm(gradient) < tol,  # Indicador de convergencia
+            'method': 'newton_method'  # Nombre del método
         }
     
     def modified_newton(self, func: Callable, grad: Callable, hess: Callable, x0: np.ndarray,
@@ -66,41 +80,59 @@ class NewtonOptimizer:
                        beta: float = 1e-3) -> Dict[str, Any]:
         """
         Método de Newton modificado con regularización adaptativa
+        En cada iteración, la hessiana se modifica para asegurar que sea definida positiva,
+        lo que garantiza que la dirección de búsqueda sea de descenso.
+        Si la hessiana tiene autovalores pequeños o negativos, se ajustan a un mínimo beta.
+        Si el sistema es singular, se recurre a un paso de gradiente descendente pequeño.
         """
+        # Copiamos el punto inicial para no modificar el argumento original
         x = x0.copy()
+        # Guardamos la trayectoria de puntos visitados
         path = [x.copy()]
+        # Guardamos el valor de la función objetivo en cada iteración
         errors = [func(*x)]
         
+        # Iteramos hasta alcanzar el máximo de iteraciones o la tolerancia
         for i in range(max_iter):
+            # Calculamos el gradiente en el punto actual
             gradient = grad(*x)
             
+            # Criterio de convergencia: si la norma del gradiente es pequeña, terminamos
             if np.linalg.norm(gradient) < tol:
                 break
             
+            # Calculamos la hessiana en el punto actual
             hessian = hess(*x)
             
-            # Modificación de la hessiana para asegurar definida positiva
+            # Descomponemos la hessiana en autovalores y autovectores
             eigenvals, eigenvecs = np.linalg.eigh(hessian)
+            # Ajustamos los autovalores para que sean al menos beta (evita indefinición o indefinida negativa)
             eigenvals = np.maximum(eigenvals, beta)
+            # Reconstruimos la hessiana modificada
             modified_hessian = eigenvecs @ np.diag(eigenvals) @ eigenvecs.T
             
             try:
+                # Resolvemos el sistema modificado para obtener la dirección de Newton
                 direction = np.linalg.solve(modified_hessian, -gradient)
+                # Actualizamos el punto
                 x = x + direction
             except np.linalg.LinAlgError:
+                # Si la hessiana sigue siendo problemática, hacemos un paso pequeño de gradiente descendente
                 direction = -gradient / np.linalg.norm(gradient)
                 x = x + 0.01 * direction
             
+            # Guardamos el nuevo punto y el error para análisis posterior
             path.append(x.copy())
             errors.append(func(*x))
         
+        # Devolvemos los resultados en un diccionario estándar
         return {
-            'x': x,
-            'path': np.array(path),
-            'errors': errors,
-            'iterations': i + 1,
-            'converged': np.linalg.norm(gradient) < tol,
-            'method': 'modified_newton'
+            'x': x,  # Punto final encontrado
+            'path': np.array(path),  # Trayectoria completa
+            'errors': errors,  # Valores de la función objetivo
+            'iterations': i + 1,  # Número de iteraciones realizadas
+            'converged': np.linalg.norm(gradient) < tol,  # Indicador de convergencia
+            'method': 'modified_newton'  # Nombre del método
         }
     
     def damped_newton(self, func: Callable, grad: Callable, hess: Callable, x0: np.ndarray,
