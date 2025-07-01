@@ -28,57 +28,57 @@ class LagrangeMultiplierOptimizer:
                        tol: float = 1e-6) -> Dict[str, Any]:
         """
         Método de Newton para las condiciones KKT del Lagrangiano
-        
-        L(x,λ) = f(x) + λᵀh(x)
-        
-        Condiciones KKT:
-        ∇ₓL = ∇f(x) + Σλᵢ∇hᵢ(x) = 0
-        h(x) = 0
+        Resuelve problemas de optimización con restricciones de igualdad usando multiplicadores de Lagrange.
+        En cada iteración, se construye y resuelve el sistema KKT para actualizar x y los multiplicadores λ.
         """
-        n = len(x0)
-        m = len(constraints_eq)
+        n = len(x0)  # Dimensión de x
+        m = len(constraints_eq)  # Número de restricciones de igualdad
         
+        # Inicializamos x y los multiplicadores de Lagrange
         x = x0.copy()
         if lambda0 is None:
             lam = np.zeros(m)
         else:
             lam = lambda0.copy()
         
+        # Guardamos la trayectoria de x y λ, errores y violaciones
         path_x = [x.copy()]
         path_lambda = [lam.copy()]
         errors = [func(*x)]
         violations = []
         
+        # Iteramos hasta convergencia o máximo de iteraciones
         for iteration in range(max_iter):
-            # Evaluar funciones y derivadas
+            # Evaluar gradiente y hessiana de la función objetivo
             f_grad = grad(*x)
             f_hess = hess(*x)
             
-            h_vals = np.array([h(x) for h in constraints_eq])
-            h_jacs = np.array([jac(x) for jac in constraints_eq_jac])
+            # Evaluar restricciones y sus jacobianos
+            h_vals = np.array([h(x) for h in constraints_eq])  # h(x)
+            h_jacs = np.array([jac(x) for jac in constraints_eq_jac])  # ∇h(x)
             
-            # Gradiente del Lagrangiano respecto a x
+            # Gradiente del Lagrangiano respecto a x: ∇f(x) + Σλᵢ∇hᵢ(x)
             grad_L_x = f_grad + h_jacs.T @ lam
             
-            # Calcular hessiana del Lagrangiano
+            # Hessiana del Lagrangiano: ∇²f(x) + Σλᵢ∇²hᵢ(x)
             if constraints_eq_hess:
                 hess_L_x = f_hess + sum([lam[i] * hess_h(x) for i, hess_h in enumerate(constraints_eq_hess)])
             else:
-                # Aproximación cuasi-Newton (solo hessiana de f)
+                # Si no se da la hessiana de las restricciones, solo usamos la de f
                 hess_L_x = f_hess
             
-            # Construir sistema KKT:
+            # Construimos el sistema KKT:
             # [H_L   A^T] [Δx] = -[∇_x L]
             # [A     0  ] [Δλ]   -[h(x)]
-            
+            # Donde H_L es la hessiana del Lagrangiano y A es la matriz de jacobianos de las restricciones
             KKT_matrix = np.block([
                 [hess_L_x, h_jacs.T],
                 [h_jacs, np.zeros((m, m))]
             ])
-            
+            # Lado derecho del sistema
             rhs = -np.concatenate([grad_L_x, h_vals])
             
-            # Calcular violación de las condiciones KKT
+            # Calculamos la violación de las condiciones KKT (criterio de convergencia)
             violation = np.linalg.norm(rhs)
             violations.append(violation)
             
@@ -86,40 +86,43 @@ class LagrangeMultiplierOptimizer:
                 break
             
             try:
-                # Resolver sistema KKT
+                # Resolvemos el sistema KKT para obtener los incrementos Δx y Δλ
                 delta = np.linalg.solve(KKT_matrix, rhs)
                 delta_x = delta[:n]
                 delta_lambda = delta[n:]
                 
-                # Actualizar variables
+                # Búsqueda de línea para asegurar descenso y estabilidad
                 alpha = self._line_search_lagrangian(func, constraints_eq, x, lam, delta_x, delta_lambda)
+                # Actualizamos x y λ
                 x = x + alpha * delta_x
                 lam = lam + alpha * delta_lambda
                 
             except np.linalg.LinAlgError:
-                # Si falla, usar paso pequeño en dirección del gradiente
+                # Si el sistema es singular, damos un paso pequeño en la dirección del gradiente
                 alpha = 0.01
                 x = x - alpha * grad_L_x
-                # Actualizar multiplicadores usando mínimos cuadrados
+                # Actualizamos los multiplicadores usando mínimos cuadrados si es posible
                 try:
                     lam = np.linalg.pinv(h_jacs) @ (-f_grad)
                 except:
                     pass
             
+            # Guardamos la trayectoria y el error
             path_x.append(x.copy())
             path_lambda.append(lam.copy())
             errors.append(func(*x))
         
+        # Devolvemos los resultados en un diccionario estándar
         return {
-            'x': x,
-            'lambda': lam,
-            'path': np.array(path_x),  # Usar path estándar
-            'path_lambda': np.array(path_lambda),
-            'errors': errors,
-            'violations': violations,
-            'iterations': iteration + 1,
-            'converged': violation < tol,
-            'method': 'lagrange_newton'
+            'x': x,  # Solución final
+            'lambda': lam,  # Multiplicadores de Lagrange finales
+            'path': np.array(path_x),  # Trayectoria de x
+            'path_lambda': np.array(path_lambda),  # Trayectoria de λ
+            'errors': errors,  # Valores de la función objetivo
+            'violations': violations,  # Violación de KKT en cada iteración
+            'iterations': iteration + 1,  # Número de iteraciones
+            'converged': violation < tol,  # Indicador de convergencia
+            'method': 'lagrange_newton'  # Nombre del método
         }
     
     def augmented_lagrangian(self, func: Callable, grad: Callable,

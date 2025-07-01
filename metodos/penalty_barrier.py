@@ -33,33 +33,39 @@ class PenaltyBarrierOptimizer:
         
         Función penalizada: P(x,μ) = f(x) + μ * [∑h_i(x)² + ∑max(0,g_j(x))²]
         """
+        # Copiamos el punto inicial para no modificar el argumento original
         x = x0.copy()
+        # Inicializamos el parámetro de penalización
         mu = penalty_start
         
+        # Guardamos la trayectoria de puntos visitados, errores, penalizaciones y violaciones
         path = [x.copy()]
         errors = [func(*x)]
         penalties = [mu]
         violations = []
         
+        # Ciclo externo: aumentar la penalización progresivamente
         for outer_iter in range(max_outer_iter):
-            # Definir función penalizada
+            # Definimos la función penalizada: suma la función objetivo y las penalizaciones por restricciones
             def penalized_func(*args):
                 x_eval = np.array(args)
                 f_val = func(*x_eval)
                 penalty = 0.0
                 
-                # Penalización para restricciones de igualdad: μ * h(x)²
+                # Penalización para restricciones de igualdad: μ * h(x)^2
                 if constraints_eq:
                     for h in constraints_eq:
                         penalty += h(x_eval)**2
                 
-                # Penalización para restricciones de desigualdad: μ * max(0, g(x))²
+                # Penalización para restricciones de desigualdad: μ * max(0, g(x))^2
                 if constraints_ineq:
                     for g in constraints_ineq:
                         penalty += max(0, g(x_eval))**2
                 
+                # Devuelve la función objetivo penalizada
                 return f_val + mu * penalty
             
+            # Gradiente de la función penalizada: suma el gradiente de la función objetivo y el de las penalizaciones
             def penalized_grad(*args):
                 x_eval = np.array(args)
                 grad_f = grad(*x_eval)
@@ -69,7 +75,7 @@ class PenaltyBarrierOptimizer:
                 if constraints_eq:
                     for h in constraints_eq:
                         h_val = h(x_eval)
-                        # Aproximar gradiente numéricamente
+                        # Aproximamos el gradiente de h numéricamente
                         h_grad = self._numerical_gradient(h, x_eval)
                         grad_penalty += 2 * h_val * h_grad
                 
@@ -81,16 +87,18 @@ class PenaltyBarrierOptimizer:
                             g_grad = self._numerical_gradient(g, x_eval)
                             grad_penalty += 2 * g_val * g_grad
                 
+                # Devuelve el gradiente total penalizado
                 return grad_f + mu * grad_penalty
             
-            # Optimizar función penalizada
+            # Optimización interna: minimizamos la función penalizada usando un método sin restricciones
             result = self._unconstrained_optimization(penalized_func, penalized_grad, x, max_inner_iter, tol)
             x = result['x']
             
-            path.extend(result['path'][1:])  # Evitar duplicar último punto
+            # Guardamos la trayectoria y los errores de la optimización interna
+            path.extend(result['path'][1:])  # Evitar duplicar el último punto
             errors.extend([func(*xi) for xi in result['path'][1:]])
             
-            # Calcular violación de restricciones
+            # Calculamos la violación de las restricciones en el nuevo punto
             violation = 0.0
             if constraints_eq:
                 violation += sum([h(x)**2 for h in constraints_eq])
@@ -99,23 +107,24 @@ class PenaltyBarrierOptimizer:
             
             violations.append(violation)
             
-            # Verificar convergencia
+            # Verificamos si la violación es suficientemente pequeña (convergencia)
             if violation < tol:
                 break
             
-            # Aumentar parámetro de penalización
+            # Si no converge, aumentamos el parámetro de penalización para forzar el cumplimiento de las restricciones
             mu *= penalty_factor
             penalties.append(mu)
         
+        # Devolvemos los resultados en un diccionario estándar
         return {
-            'x': x,
-            'path': np.array(path),
-            'errors': errors,
-            'violations': violations,
-            'penalties': penalties,
-            'iterations': outer_iter + 1,
-            'converged': violation < tol,
-            'method': 'exterior_penalty'
+            'x': x,  # Punto final encontrado
+            'path': np.array(path),  # Trayectoria completa
+            'errors': errors,  # Valores de la función objetivo
+            'violations': violations,  # Violación de restricciones en cada ciclo
+            'penalties': penalties,  # Valores de penalización usados
+            'iterations': outer_iter + 1,  # Número de ciclos externos
+            'converged': violation < tol,  # Indicador de convergencia
+            'method': 'exterior_penalty'  # Nombre del método
         }
     
     def logarithmic_barrier(self, func: Callable, grad: Callable,
