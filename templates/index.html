@@ -3,212 +3,253 @@
 {% block title %}Inicio - Métodos de Optimización No Lineal{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<div class="bg-gradient bg-primary text-white py-5 mb-5 rounded">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-8">
-                <h1 class="display-4 fw-bold mb-3">
-                    <i class="fas fa-chart-line me-3"></i>
-                    Métodos de Optimización No Lineal
-                </h1>
-                <p class="lead mb-4">
-                    Explora y experimenta con los principales algoritmos de optimización matemática
-                    de forma interactiva y visual.
-                </p>
-                <div class="d-flex gap-3">
-                    <a href="{{ url_for('line_search') }}" class="btn btn-light btn-lg">
-                        <i class="fas fa-search me-2"></i>
-                        Comenzar Exploración
-                    </a>
-                    <button class="btn btn-outline-light btn-lg" data-bs-toggle="modal" data-bs-target="#aboutModal">
-                        <i class="fas fa-info-circle me-2"></i>
-                        Más Información
-                    </button>
-                </div>
-            </div>
-            <div class="col-lg-4 text-center">
-                <div class="p-4">
-                    <i class="fas fa-calculator fa-8x opacity-75"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Métodos Principales -->
 <div class="container">
     <div class="row mb-5">
         <div class="col-12">
             <h2 class="text-center mb-4">
-                <i class="fas fa-cogs me-2"></i>
-                Métodos Implementados
+                <i class="fas fa-route me-2"></i>
+                Recorrido de Métodos de Optimización
             </h2>
             <p class="text-center text-muted mb-5">
-                Selecciona un método para explorar su implementación y visualizar su comportamiento
+                Sigue el timeline de métodos desde los más básicos hasta los más avanzados
             </p>
         </div>
     </div>
 
-    <div class="row g-4">
+    <div class="timeline-container">
+        <div class="timeline-line"></div>
         <!-- Búsqueda de Línea -->
-        <div class="col-lg-4 col-md-6">
-            <div class="card method-card h-100 border-0 shadow-sm">
-                <div class="card-body text-center p-4">
-                    <div class="method-icon bg-primary bg-gradient text-white rounded-circle mx-auto mb-3">
-                        <i class="fas fa-search fa-2x"></i>
+        <div class="timeline-item">
+            <div class="timeline-icon">
+                <i class="fas fa-search fa-lg"></i>
+            </div>
+            <div class="timeline-content">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <h4 class="fw-bold text-success mb-2">1. Búsqueda de Línea</h4>
+                        <p class="text-muted mb-3">
+                            Métodos fundamentales para encontrar el paso óptimo en una dirección dada. 
+                            Utilizan técnicas como sección áurea y Fibonacci para minimizar funciones unidimensionales.
+                        </p>
+                        <div class="mb-3">
+                            <span class="badge bg-success me-1">Sección Áurea</span>
+                            <span class="badge bg-success me-1">Fibonacci</span>
+                            <span class="badge bg-success">Armijo</span>
+                        </div>
+                        <div class="mathematical-formula bg-light p-3 rounded mb-3">
+                            <strong>Problema:</strong> $\min_{\alpha > 0} f(x_k + \alpha d_k)$<br>
+                            <small class="text-muted">Donde $d_k$ es la dirección de búsqueda</small>
+                        </div>
                     </div>
-                    <h5 class="card-title fw-bold">Búsqueda de Línea</h5>
-                    <p class="card-text text-muted">
-                        Métodos de sección áurea y Fibonacci para encontrar el paso óptimo
-                    </p>
-                    <div class="mb-3">
-                        <span class="badge bg-primary me-1">Sección Áurea</span>
-                        <span class="badge bg-primary me-1">Fibonacci</span>
-                        <span class="badge bg-primary">Armijo</span>
+                    <div class="col-lg-4 text-end">
+                        <div class="mb-3">
+                            <div class="bg-gradient-secondary text-white p-3 rounded text-center">
+                                <i class="fas fa-chart-line fa-2x mb-2"></i>
+                                <p class="small mb-0">Convergencia Lineal</p>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('line_search') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-right me-1"></i>
+                            Explorar Método
+                        </a>
                     </div>
-                    <div class="mathematical-formula bg-light p-2 rounded mb-3">
-                        <small class="text-muted">$\min_{\alpha > 0} f(x_k + \alpha d_k)$</small>
-                    </div>
-                    <a href="{{ url_for('line_search') }}" class="btn btn-primary btn-sm">
-                        <i class="fas fa-arrow-right me-1"></i>
-                        Explorar Método
-                    </a>
                 </div>
             </div>
         </div>
 
         <!-- Descenso de Gradiente -->
-        <div class="col-lg-4 col-md-6">
-            <div class="card method-card h-100 border-0 shadow-sm">
-                <div class="card-body text-center p-4">
-                    <div class="method-icon bg-success bg-gradient text-white rounded-circle mx-auto mb-3">
-                        <i class="fas fa-arrow-down fa-2x"></i>
+        <div class="timeline-item">
+            <div class="timeline-icon">
+                <i class="fas fa-arrow-down fa-lg"></i>
+            </div>
+            <div class="timeline-content">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <h4 class="fw-bold text-success mb-2">2. Descenso de Gradiente</h4>
+                        <p class="text-muted mb-3">
+                            El método más fundamental de optimización. Utiliza la dirección del gradiente negativo 
+                            para encontrar mínimos locales. Base de muchos algoritmos modernos de machine learning.
+                        </p>
+                        <div class="mb-3">
+                            <span class="badge bg-success me-1">Básico</span>
+                            <span class="badge bg-success me-1">Momentum</span>
+                            <span class="badge bg-success">Adam</span>
+                        </div>
+                        <div class="mathematical-formula bg-light p-3 rounded mb-3">
+                            <strong>Iteración:</strong> $x_{k+1} = x_k - \alpha \nabla f(x_k)$<br>
+                            <small class="text-muted">Donde $\alpha$ es la tasa de aprendizaje</small>
+                        </div>
                     </div>
-                    <h5 class="card-title fw-bold">Descenso de Gradiente</h5>
-                    <p class="card-text text-muted">
-                        Algoritmos basados en la dirección del gradiente negativo
-                    </p>
-                    <div class="mb-3">
-                        <span class="badge bg-success me-1">Básico</span>
-                        <span class="badge bg-success me-1">Momentum</span>
-                        <span class="badge bg-success">Adam</span>
+                    <div class="col-lg-4 text-end">
+                        <div class="mb-3">
+                            <div class="bg-gradient-secondary text-white p-3 rounded text-center">
+                                <i class="fas fa-mountain fa-2x mb-2"></i>
+                                <p class="small mb-0">Descenso por Pendiente</p>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('gradient_descent') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-right me-1"></i>
+                            Explorar Método
+                        </a>
                     </div>
-                    <div class="mathematical-formula bg-light p-2 rounded mb-3">
-                        <small class="text-muted">$x_{k+1} = x_k - \alpha \nabla f(x_k)$</small>
-                    </div>
-                    <a href="{{ url_for('gradient_descent') }}" class="btn btn-success btn-sm">
-                        <i class="fas fa-arrow-right me-1"></i>
-                        Explorar Método
-                    </a>
                 </div>
             </div>
         </div>
 
         <!-- Método de Newton -->
-        <div class="col-lg-4 col-md-6">
-            <div class="card method-card h-100 border-0 shadow-sm">
-                <div class="card-body text-center p-4">
-                    <div class="method-icon bg-warning bg-gradient text-white rounded-circle mx-auto mb-3">
-                        <i class="fas fa-square-root-alt fa-2x"></i>
+        <div class="timeline-item">
+            <div class="timeline-icon">
+                <i class="fas fa-square-root-alt fa-lg"></i>
+            </div>
+            <div class="timeline-content">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <h4 class="fw-bold text-success mb-2">3. Método de Newton</h4>
+                        <p class="text-muted mb-3">
+                            Método de convergencia cuadrática que utiliza información de segundo orden (Hessiana). 
+                            Extremadamente rápido cerca del óptimo, pero requiere cálculo de derivadas segundas.
+                        </p>
+                        <div class="mb-3">
+                            <span class="badge bg-success me-1">Clásico</span>
+                            <span class="badge bg-success me-1">Modificado</span>
+                            <span class="badge bg-success">Amortiguado</span>
+                        </div>
+                        <div class="mathematical-formula bg-light p-3 rounded mb-3">
+                            <strong>Iteración:</strong> $x_{k+1} = x_k - H_f^{-1}(x_k)\nabla f(x_k)$<br>
+                            <small class="text-muted">Donde $H_f$ es la matriz Hessiana</small>
+                        </div>
                     </div>
-                    <h5 class="card-title fw-bold">Método de Newton</h5>
-                    <p class="card-text text-muted">
-                        Convergencia cuadrática usando información de segundo orden
-                    </p>
-                    <div class="mb-3">
-                        <span class="badge bg-warning me-1">Clásico</span>
-                        <span class="badge bg-warning me-1">Modificado</span>
-                        <span class="badge bg-warning">Amortiguado</span>
+                    <div class="col-lg-4 text-end">
+                        <div class="mb-3">
+                            <div class="bg-gradient-secondary text-white p-3 rounded text-center">
+                                <i class="fas fa-rocket fa-2x mb-2"></i>
+                                <p class="small mb-0">Convergencia Cuadrática</p>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('newton_method') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-right me-1"></i>
+                            Explorar Método
+                        </a>
                     </div>
-                    <div class="mathematical-formula bg-light p-2 rounded mb-3">
-                        <small class="text-muted">$x_{k+1} = x_k - H_f^{-1}(x_k)\nabla f(x_k)$</small>
-                    </div>
-                    <a href="{{ url_for('newton_method') }}" class="btn btn-warning btn-sm">
-                        <i class="fas fa-arrow-right me-1"></i>
-                        Explorar Método
-                    </a>
                 </div>
             </div>
         </div>
 
         <!-- Métodos Primales -->
-        <div class="col-lg-4 col-md-6">
-            <div class="card method-card h-100 border-0 shadow-sm">
-                <div class="card-body text-center p-4">
-                    <div class="method-icon bg-info bg-gradient text-white rounded-circle mx-auto mb-3">
-                        <i class="fas fa-lock fa-2x"></i>
+        <div class="timeline-item">
+            <div class="timeline-icon">
+                <i class="fas fa-lock fa-lg"></i>
+            </div>
+            <div class="timeline-content">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <h4 class="fw-bold text-success mb-2">4. Métodos Primales</h4>
+                        <p class="text-muted mb-3">
+                            Optimización con restricciones que mantiene la factibilidad en cada iteración. 
+                            Utiliza proyecciones sobre el conjunto factible para manejar las restricciones.
+                        </p>
+                        <div class="mb-3">
+                            <span class="badge bg-success me-1">Proyectado</span>
+                            <span class="badge bg-success me-1">Reducido</span>
+                            <span class="badge bg-success">Factible</span>
+                        </div>
+                        <div class="mathematical-formula bg-light p-3 rounded mb-3">
+                            <strong>Problema:</strong> $\min f(x)$ sujeto a $g(x) = 0$<br>
+                            <small class="text-muted">Con proyección sobre el conjunto factible</small>
+                        </div>
                     </div>
-                    <h5 class="card-title fw-bold">Métodos Primales</h5>
-                    <p class="card-text text-muted">
-                        Optimización con restricciones usando gradiente proyectado
-                    </p>
-                    <div class="mb-3">
-                        <span class="badge bg-info me-1">Proyectado</span>
-                        <span class="badge bg-info me-1">Reducido</span>
-                        <span class="badge bg-info">Factible</span>
+                    <div class="col-lg-4 text-end">
+                        <div class="mb-3">
+                            <div class="bg-gradient-secondary text-white p-3 rounded text-center">
+                                <i class="fas fa-shield-alt fa-2x mb-2"></i>
+                                <p class="small mb-0">Siempre Factible</p>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('constrained') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-right me-1"></i>
+                            Explorar Método
+                        </a>
                     </div>
-                    <div class="mathematical-formula bg-light p-2 rounded mb-3">
-                        <small class="text-muted">$\min f(x)$ s.t. $g(x) = 0$</small>
-                    </div>
-                    <a href="{{ url_for('constrained') }}" class="btn btn-info btn-sm">
-                        <i class="fas fa-arrow-right me-1"></i>
-                        Explorar Método
-                    </a>
                 </div>
             </div>
         </div>
 
         <!-- Penalización y Barrera -->
-        <div class="col-lg-4 col-md-6">
-            <div class="card method-card h-100 border-0 shadow-sm">
-                <div class="card-body text-center p-4">
-                    <div class="method-icon bg-danger bg-gradient text-white rounded-circle mx-auto mb-3">
-                        <i class="fas fa-shield-alt fa-2x"></i>
+        <div class="timeline-item">
+            <div class="timeline-icon">
+                <i class="fas fa-shield-alt fa-lg"></i>
+            </div>
+            <div class="timeline-content">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <h4 class="fw-bold text-success mb-2">5. Penalización y Barrera</h4>
+                        <p class="text-muted mb-3">
+                            Transforma problemas con restricciones en problemas sin restricciones mediante 
+                            funciones de penalización. Permite usar métodos no restringidos en problemas restringidos.
+                        </p>
+                        <div class="mb-3">
+                            <span class="badge bg-success me-1">Exterior</span>
+                            <span class="badge bg-success me-1">Logarítmica</span>
+                            <span class="badge bg-success">Inversa</span>
+                        </div>
+                        <div class="mathematical-formula bg-light p-3 rounded mb-3">
+                            <strong>Función Aumentada:</strong> $f(x) + \mu \sum p(g_i(x))$<br>
+                            <small class="text-muted">Donde $p(\cdot)$ es la función de penalización</small>
+                        </div>
                     </div>
-                    <h5 class="card-title fw-bold">Penalización y Barrera</h5>
-                    <p class="card-text text-muted">
-                        Transformación de problemas restringidos en no restringidos
-                    </p>
-                    <div class="mb-3">
-                        <span class="badge bg-danger me-1">Exterior</span>
-                        <span class="badge bg-danger me-1">Logarítmica</span>
-                        <span class="badge bg-danger">Inversa</span>
+                    <div class="col-lg-4 text-end">
+                        <div class="mb-3">
+                            <div class="bg-gradient-secondary text-white p-3 rounded text-center">
+                                <i class="fas fa-balance-scale fa-2x mb-2"></i>
+                                <p class="small mb-0">Transformación</p>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('penalty_barrier') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-right me-1"></i>
+                            Explorar Método
+                        </a>
                     </div>
-                    <div class="mathematical-formula bg-light p-2 rounded mb-3">
-                        <small class="text-muted">$f(x) + \mu \sum p(g_i(x))$</small>
-                    </div>
-                    <a href="{{ url_for('penalty_barrier') }}" class="btn btn-danger btn-sm">
-                        <i class="fas fa-arrow-right me-1"></i>
-                        Explorar Método
-                    </a>
                 </div>
             </div>
         </div>
 
         <!-- Multiplicadores de Lagrange -->
-        <div class="col-lg-4 col-md-6">
-            <div class="card method-card h-100 border-0 shadow-sm">
-                <div class="card-body text-center p-4">
-                    <div class="method-icon bg-secondary bg-gradient text-white rounded-circle mx-auto mb-3">
-                        <i class="fas fa-infinity fa-2x"></i>
+        <div class="timeline-item">
+            <div class="timeline-icon">
+                <i class="fas fa-infinity fa-lg"></i>
+            </div>
+            <div class="timeline-content">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <h4 class="fw-bold text-success mb-2">6. Multiplicadores de Lagrange</h4>
+                        <p class="text-muted mb-3">
+                            El método más elegante para optimización restringida. Utiliza condiciones KKT 
+                            y lagrangiano aumentado para encontrar óptimos con restricciones de igualdad y desigualdad.
+                        </p>
+                        <div class="mb-3">
+                            <span class="badge bg-success me-1">KKT</span>
+                            <span class="badge bg-success me-1">Aumentado</span>
+                            <span class="badge bg-success">SQP</span>
+                        </div>
+                        <div class="mathematical-formula bg-light p-3 rounded mb-3">
+                            <strong>Condición KKT:</strong> $\nabla f + \lambda^T \nabla g = 0$<br>
+                            <small class="text-muted">Con $\lambda$ multiplicadores de Lagrange</small>
+                        </div>
                     </div>
-                    <h5 class="card-title fw-bold">Multiplicadores de Lagrange</h5>
-                    <p class="card-text text-muted">
-                        Condiciones KKT y lagrangiano aumentado para optimización restringida
-                    </p>
-                    <div class="mb-3">
-                        <span class="badge bg-secondary me-1">KKT</span>
-                        <span class="badge bg-secondary me-1">Aumentado</span>
-                        <span class="badge bg-secondary">SQP</span>
+                    <div class="col-lg-4 text-end">
+                        <div class="mb-3">
+                            <div class="bg-gradient-secondary text-white p-3 rounded text-center">
+                                <i class="fas fa-crown fa-2x mb-2"></i>
+                                <p class="small mb-0">Método Óptimo</p>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('lagrange') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-right me-1"></i>
+                            Explorar Método
+                        </a>
                     </div>
-                    <div class="mathematical-formula bg-light p-2 rounded mb-3">
-                        <small class="text-muted">$\nabla f + \lambda^T \nabla g = 0$</small>
-                    </div>
-                    <a href="{{ url_for('lagrange') }}" class="btn btn-secondary btn-sm">
-                        <i class="fas fa-arrow-right me-1"></i>
-                        Explorar Método
-                    </a>
                 </div>
             </div>
         </div>
@@ -257,31 +298,33 @@
 
 {% block extra_scripts %}
 <script>
-    // Animaciones para las tarjetas de métodos
+    // Animaciones para el timeline y elementos interactivos
     document.addEventListener('DOMContentLoaded', function () {
-        const cards = document.querySelectorAll('.method-card');
-
-        cards.forEach((card, index) => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(20px)';
-
-            setTimeout(() => {
-                card.style.transition = 'all 0.5s ease';
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            }, index * 100);
-        });
-
-        // Hover effects
-        cards.forEach(card => {
-            card.addEventListener('mouseenter', function () {
-                this.style.transform = 'translateY(-5px)';
+        // Animación de entrada para timeline items
+        const timelineItems = document.querySelectorAll('.timeline-item');
+        
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateX(0)';
+                }
             });
-
-            card.addEventListener('mouseleave', function () {
-                this.style.transform = 'translateY(0)';
-            });
+        }, observerOptions);
+        
+        timelineItems.forEach((item, index) => {
+            item.style.opacity = '0';
+            item.style.transform = 'translateX(-50px)';
+            item.style.transition = `all 0.6s cubic-bezier(0.4, 0, 0.2, 1) ${index * 0.1}s`;
+            observer.observe(item);
         });
+        
+        // Código limpio sin referencias a elementos eliminados
     });
 </script>
 {% endblock %}

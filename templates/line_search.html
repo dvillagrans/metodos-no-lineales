@@ -29,44 +29,99 @@
     <!-- Teoría -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card border-0 shadow-sm">
+            <div class="card border-0 shadow-sm theory-section">
                 <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="fas fa-book me-2"></i>
-                        Fundamentos Teóricos
-                    </h5>
-                    <p class="card-text">
-                        Los métodos de búsqueda de línea resuelven el subproblema unidimensional:
-                    </p>
-                    <div class="math-expression text-center">
-                        $$\min_{\alpha > 0} f(x_k + \alpha d_k)$$
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="theory-icon bg-gradient-green text-white rounded-circle me-3">
+                            <i class="fas fa-ruler-combined fa-2x"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title mb-1">
+                                <i class="fas fa-book me-2"></i>
+                                Fundamentos Teóricos
+                            </h5>
+                            <p class="text-muted mb-0">Métodos de optimización unidimensional</p>
+                        </div>
                     </div>
-                    <p class="card-text">
-                        Donde $x_k$ es el punto actual, $d_k$ es la dirección de búsqueda, y $\alpha$ es el tamaño del
-                        paso.
-                    </p>
+                    
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <p class="card-text">
+                                Los métodos de búsqueda de línea resuelven el subproblema unidimensional:
+                            </p>
+                            <div class="math-expression text-center mb-3">
+                                $$\min_{\alpha > 0} f(x_k + \alpha d_k)$$
+                            </div>
+                            <p class="card-text">
+                                Donde $x_k$ es el punto actual, $d_k$ es la dirección de búsqueda, y $\alpha$ es el tamaño del paso.
+                            </p>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="example-box bg-light rounded p-3">
+                                <h6 class="text-success mb-2">
+                                    <i class="fas fa-calculator me-1"></i>
+                                    Ejemplo Numérico
+                                </h6>
+                                <small class="text-muted">
+                                    Para $f(x) = x^2$, $x_0 = 2$, $d = -1$:<br>
+                                    $\phi(\alpha) = (2 - \alpha)^2$<br>
+                                    Mínimo en $\alpha^* = 2$
+                                </small>
+                                <div class="mini-chart mt-2">
+                                    <canvas id="miniChart" width="120" height="60"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                    <div class="row mt-3">
+                    <div class="row mt-4">
                         <div class="col-md-4">
-                            <h6 class="text-primary">Sección Áurea</h6>
-                            <small class="text-muted">
-                                Utiliza la proporción áurea $\phi = \frac{1+\sqrt{5}}{2}$ para reducir el intervalo de
-                                búsqueda.
-                            </small>
+                            <div class="method-chip chip-golden">
+                                <div class="chip-icon">
+                                    <i class="fas fa-divide"></i>
+                                </div>
+                                <div class="chip-content">
+                                    <h6 class="chip-title">Sección Áurea</h6>
+                                    <p class="chip-description">
+                                        Utiliza la proporción áurea $\phi = \frac{1+\sqrt{5}}{2} \approx 1.618$
+                                    </p>
+                                    <div class="chip-formula">
+                                        $\tau = 0.618$
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-md-4">
-                            <h6 class="text-success">Fibonacci</h6>
-                            <small class="text-muted">
-                                Emplea la secuencia de Fibonacci para una búsqueda óptima en un número fijo de
-                                evaluaciones.
-                            </small>
+                            <div class="method-chip chip-fibonacci">
+                                <div class="chip-icon">
+                                    <i class="fas fa-list-ol"></i>
+                                </div>
+                                <div class="chip-content">
+                                    <h6 class="chip-title">Fibonacci</h6>
+                                    <p class="chip-description">
+                                        Secuencia: 1, 1, 2, 3, 5, 8, 13, 21...
+                                    </p>
+                                    <div class="chip-formula">
+                                        $F_{n+1} = F_n + F_{n-1}$
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-md-4">
-                            <h6 class="text-warning">Armijo</h6>
-                            <small class="text-muted">
-                                Condición de decrecimiento suficiente: $f(x + \alpha d) \leq f(x) + c_1 \alpha \nabla
-                                f^T d$
-                            </small>
+                            <div class="method-chip chip-armijo">
+                                <div class="chip-icon">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <div class="chip-content">
+                                    <h6 class="chip-title">Armijo</h6>
+                                    <p class="chip-description">
+                                        Condición de decrecimiento suficiente
+                                    </p>
+                                    <div class="chip-formula">
+                                        $c_1 = 0.0001$
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -264,8 +319,67 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         initializeCharts();
+        initializeMiniChart();
         setupEventListeners();
     });
+
+    function initializeMiniChart() {
+        const miniCtx = document.getElementById('miniChart');
+        if (!miniCtx) return;
+        
+        const ctx = miniCtx.getContext('2d');
+        const width = miniCtx.width;
+        const height = miniCtx.height;
+        
+        // Clear canvas
+        ctx.clearRect(0, 0, width, height);
+        
+        // Draw parabola f(x) = (2-x)^2
+        ctx.strokeStyle = '#22c55e';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        
+        for (let i = 0; i <= width; i++) {
+            const x = (i / width) * 4; // x from 0 to 4
+            const y = Math.pow(2 - x, 2); // f(x) = (2-x)^2
+            const canvasY = height - (y / 4) * height; // normalize to canvas height
+            
+            if (i === 0) {
+                ctx.moveTo(i, canvasY);
+            } else {
+                ctx.lineTo(i, canvasY);
+            }
+        }
+        ctx.stroke();
+        
+        // Mark minimum point
+        const minX = (2 / 4) * width; // x = 2 normalized
+        const minY = height; // y = 0 at bottom
+        
+        ctx.fillStyle = '#dc3545';
+        ctx.beginPath();
+        ctx.arc(minX, minY - 2, 3, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        // Add grid
+        ctx.strokeStyle = '#e5e7eb';
+        ctx.lineWidth = 0.5;
+        for (let i = 0; i <= 4; i++) {
+            const x = (i / 4) * width;
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, height);
+            ctx.stroke();
+        }
+        
+        for (let i = 0; i <= 3; i++) {
+            const y = (i / 3) * height;
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(width, y);
+            ctx.stroke();
+        }
+    }
 
     function initializeCharts() {
         // Gráfico de convergencia
