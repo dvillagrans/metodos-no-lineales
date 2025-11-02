@@ -1,0 +1,6 @@
+[project]
+name = "metodos-no-lineales"
+version = "0.1.0"
+description = "Flask app for nonlinear optimization methods"
+requires-python = ">=3.11"
+dependencies = []
