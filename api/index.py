@@ -1,16 +1,13 @@
 # Vercel Python runtime entrypoint exposing the Flask WSGI app
 # Docs: https://vercel.com/docs/functions/runtimes/python
-import os
+
+# Vercel expects the WSGI app to be named 'app' or exposed as the module
+# We import it from the parent directory where app.py lives
 import sys
+from pathlib import Path
 
-# Ensure the project root is on sys.path so we can import app.py
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(CURRENT_DIR)
-if PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT)
+# Add parent directory to path to import app.py
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# Import the Flask application object from app.py
-from app import app as app  # WSGI app expected by Vercel
-
-# Optional: set a secret key in serverless context if not present
-app.config.setdefault('SECRET_KEY', os.environ.get('SECRET_KEY', 'optimization_methods_2025'))
+# Import the Flask application - Vercel will use this as the WSGI app
+from app import app
