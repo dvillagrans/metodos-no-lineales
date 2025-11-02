@@ -1,0 +1,716 @@
+{% extends "base.html" %}
+
+{% block title %}Búsqueda de Línea - Métodos de Optimización{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Inicio</a></li>
+                    <li class="breadcrumb-item active">Búsqueda de Línea</li>
+                </ol>
+            </nav>
+
+            <div class="d-flex align-items-center mb-3">
+                <div class="method-icon bg-primary bg-gradient text-white rounded-circle me-3">
+                    <i class="fas fa-search fa-2x"></i>
+                </div>
+                <div>
+                    <h1 class="mb-1">Métodos de Búsqueda de Línea</h1>
+                    <p class="text-muted mb-0">Sección áurea, Fibonacci y condiciones de Armijo</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Teoría -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm theory-section">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="theory-icon bg-gradient-green text-white rounded-circle me-3">
+                            <i class="fas fa-ruler-combined fa-2x"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title mb-1">
+                                <i class="fas fa-book me-2"></i>
+                                Fundamentos Teóricos
+                            </h5>
+                            <p class="text-muted mb-0">Métodos de optimización unidimensional</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <p class="card-text">
+                                Los métodos de búsqueda de línea resuelven el subproblema unidimensional:
+                            </p>
+                            <div class="math-expression text-center mb-3">
+                                $$\min_{\alpha > 0} f(x_k + \alpha d_k)$$
+                            </div>
+                            <p class="card-text">
+                                Donde $x_k$ es el punto actual, $d_k$ es la dirección de búsqueda, y $\alpha$ es el tamaño del paso.
+                            </p>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="example-box bg-light rounded p-3">
+                                <h6 class="text-success mb-2">
+                                    <i class="fas fa-calculator me-1"></i>
+                                    Ejemplo Numérico
+                                </h6>
+                                <small class="text-muted">
+                                    Para $f(x) = x^2$, $x_0 = 2$, $d = -1$:<br>
+                                    $\phi(\alpha) = (2 - \alpha)^2$<br>
+                                    Mínimo en $\alpha^* = 2$
+                                </small>
+                                <div class="mini-chart mt-2">
+                                    <canvas id="miniChart" width="120" height="60"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-4">
+                            <div class="method-chip chip-golden">
+                                <div class="chip-icon">
+                                    <i class="fas fa-divide"></i>
+                                </div>
+                                <div class="chip-content">
+                                    <h6 class="chip-title">Sección Áurea</h6>
+                                    <p class="chip-description">
+                                        Utiliza la proporción áurea $\phi = \frac{1+\sqrt{5}}{2} \approx 1.618$
+                                    </p>
+                                    <div class="chip-formula">
+                                        $\tau = 0.618$
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="method-chip chip-fibonacci">
+                                <div class="chip-icon">
+                                    <i class="fas fa-list-ol"></i>
+                                </div>
+                                <div class="chip-content">
+                                    <h6 class="chip-title">Fibonacci</h6>
+                                    <p class="chip-description">
+                                        Secuencia: 1, 1, 2, 3, 5, 8, 13, 21...
+                                    </p>
+                                    <div class="chip-formula">
+                                        $F_{n+1} = F_n + F_{n-1}$
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="method-chip chip-armijo">
+                                <div class="chip-icon">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <div class="chip-content">
+                                    <h6 class="chip-title">Armijo</h6>
+                                    <p class="chip-description">
+                                        Condición de decrecimiento suficiente
+                                    </p>
+                                    <div class="chip-formula">
+                                        $c_1 = 0.0001$
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Panel de Control -->
+        <div class="col-lg-4">
+            <div class="parameter-control">
+                <h6>
+                    <i class="fas fa-sliders-h me-2"></i>
+                    Parámetros de Optimización
+                </h6>
+
+                <form id="optimizationForm">
+                    <!-- Método -->
+                    <div class="mb-3">
+                        <label for="method" class="form-label">Método de Búsqueda</label>
+                        <select class="form-select" id="method" name="method">
+                            <option value="golden_section">Sección Áurea</option>
+                            <option value="fibonacci_search">Búsqueda de Fibonacci</option>
+                            <option value="armijo_backtracking">Backtracking Armijo</option>
+                        </select>
+                    </div>
+
+                    <!-- Ejercicios Predefinidos -->
+                    <div class="mb-3">
+                        <label for="exerciseSelect" class="form-label">
+                            <i class="fas fa-book me-1"></i>
+                            Ejercicios Predefinidos
+                        </label>
+                        <select class="form-select" id="exerciseSelect">
+                            <option value="">Personalizar parámetros</option>
+                            <option value="ejercicio1">Ejercicio 1: min x² - búsqueda unidimensional</option>
+                            <option value="ejercicio2">Ejercicio 2: min x₁² + x₂² con dirección (-1, -1)</option>
+                            <option value="ejercicio3">Ejercicio 3: min (x-2)² + (y-1)² con Armijo</option>
+                        </select>
+                        <small class="text-muted">Selecciona un ejercicio para cargar sus parámetros</small>
+                    </div>
+
+                    <!-- Punto inicial -->
+                    <div class="mb-3">
+                        <label class="form-label">Punto Inicial</label>
+                        <div class="row">
+                            <div class="col-6">
+                                <input type="number" class="form-control" id="x0" placeholder="x₀" value="0.0"
+                                    step="0.1">
+                            </div>
+                            <div class="col-6">
+                                <input type="number" class="form-control" id="y0" placeholder="y₀" value="0.0"
+                                    step="0.1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tolerancia -->
+                    <div class="mb-3">
+                        <label for="tolerance" class="form-label">Tolerancia</label>
+                        <input type="number" class="form-control" id="tolerance" value="0.000001" step="0.000001"
+                            min="0.000001">
+                    </div>
+
+                    <!-- Iteraciones máximas -->
+                    <div class="mb-3">
+                        <label for="maxIter" class="form-label">Iteraciones Máximas</label>
+                        <input type="number" class="form-control" id="maxIter" value="100" min="1" max="1000">
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary" id="runOptimization">
+                            <i class="fas fa-play me-2"></i>
+                            Ejecutar Optimización
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="resetForm">
+                            <i class="fas fa-undo me-2"></i>
+                            Resetear
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Función objetivo -->
+            <div class="parameter-control">
+                <h6>
+                    <i class="fas fa-function me-2"></i>
+                    Función Objetivo
+                </h6>
+                <div class="math-expression">
+                    $$f(x,y) = (x-1)^2 + (y-2)^2$$
+                </div>
+                <p class="text-muted small mb-0">
+                    <strong>Mínimo global:</strong> $(1, 2)$ con $f^* = 0$
+                </p>
+            </div>
+        </div>
+
+        <!-- Resultados y Visualización -->
+        <div class="col-lg-8">
+            <!-- Gráficos -->
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <div class="chart-container">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0">
+                                <i class="fas fa-chart-area me-2"></i>
+                                Convergencia del Algoritmo
+                            </h6>
+                            <div id="chartStatus" class="status-indicator status-converged" style="display: none;">
+                                <i class="fas fa-check-circle me-1"></i>
+                                Completado
+                            </div>
+                        </div>
+                        <canvas id="convergenceChart"></canvas>
+                        <div id="chartSpinner" class="spinner-overlay" style="display: none;">
+                            <div class="spinner-border text-primary" role="status"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="chart-container">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0">
+                                <i class="fas fa-route me-2"></i>
+                                Trayectoria de Optimización
+                            </h6>
+                        </div>
+                        <canvas id="trajectoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resultados -->
+            <div id="resultsPanel" class="results-panel" style="display: none;">
+                <h5 class="mb-3">
+                    <i class="fas fa-chart-bar me-2"></i>
+                    Resultados de la Optimización
+                </h5>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr>
+                                    <td><strong>Punto óptimo:</strong></td>
+                                    <td id="optimalPoint">-</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Valor óptimo:</strong></td>
+                                    <td id="optimalValue">-</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Iteraciones:</strong></td>
+                                    <td id="iterations">-</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr>
+                                    <td><strong>Convergió:</strong></td>
+                                    <td id="converged">-</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Método:</strong></td>
+                                    <td id="methodUsed">-</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Tiempo:</strong></td>
+                                    <td id="executionTime">-</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    let convergenceChart = null;
+    let trajectoryChart = null;
+
+    // Configuración de Chart.js
+    Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+    Chart.defaults.font.size = 12;
+
+    document.addEventListener('DOMContentLoaded', function () {
+        initializeCharts();
+        initializeMiniChart();
+        setupEventListeners();
+    });
+
+    function initializeMiniChart() {
+        const miniCtx = document.getElementById('miniChart');
+        if (!miniCtx) return;
+        
+        const ctx = miniCtx.getContext('2d');
+        const width = miniCtx.width;
+        const height = miniCtx.height;
+        
+        // Clear canvas
+        ctx.clearRect(0, 0, width, height);
+        
+        // Draw parabola f(x) = (2-x)^2
+        ctx.strokeStyle = '#22c55e';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        
+        for (let i = 0; i <= width; i++) {
+            const x = (i / width) * 4; // x from 0 to 4
+            const y = Math.pow(2 - x, 2); // f(x) = (2-x)^2
+            const canvasY = height - (y / 4) * height; // normalize to canvas height
+            
+            if (i === 0) {
+                ctx.moveTo(i, canvasY);
+            } else {
+                ctx.lineTo(i, canvasY);
+            }
+        }
+        ctx.stroke();
+        
+        // Mark minimum point
+        const minX = (2 / 4) * width; // x = 2 normalized
+        const minY = height; // y = 0 at bottom
+        
+        ctx.fillStyle = '#dc3545';
+        ctx.beginPath();
+        ctx.arc(minX, minY - 2, 3, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        // Add grid
+        ctx.strokeStyle = '#e5e7eb';
+        ctx.lineWidth = 0.5;
+        for (let i = 0; i <= 4; i++) {
+            const x = (i / 4) * width;
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, height);
+            ctx.stroke();
+        }
+        
+        for (let i = 0; i <= 3; i++) {
+            const y = (i / 3) * height;
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(width, y);
+            ctx.stroke();
+        }
+    }
+
+    function initializeCharts() {
+        // Gráfico de convergencia
+        const convergenceCtx = document.getElementById('convergenceChart').getContext('2d');
+        convergenceChart = new Chart(convergenceCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Valor de la función objetivo',
+                    data: [],
+                    borderColor: '#0d6efd',
+                    backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Iteración'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'f(x, y)'
+                        },
+                        beginAtZero: false
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: 'white',
+                        bodyColor: 'white'
+                    }
+                }
+            }
+        });
+
+        // Gráfico de trayectoria
+        const trajectoryCtx = document.getElementById('trajectoryChart').getContext('2d');
+        trajectoryChart = new Chart(trajectoryCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [
+                    {
+                        label: 'Trayectoria',
+                        data: [],
+                        borderColor: '#0d6efd',
+                        backgroundColor: '#0d6efd',
+                        showLine: true,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    },
+                    {
+                        label: 'Punto inicial',
+                        data: [],
+                        borderColor: '#198754',
+                        backgroundColor: '#198754',
+                        pointRadius: 8,
+                        pointStyle: 'triangle'
+                    },
+                    {
+                        label: 'Punto final',
+                        data: [],
+                        borderColor: '#dc3545',
+                        backgroundColor: '#dc3545',
+                        pointRadius: 8,
+                        pointStyle: 'star'
+                    },
+                    {
+                        label: 'Óptimo teórico',
+                        data: [{ x: 1, y: 2 }],
+                        borderColor: '#ffc107',
+                        backgroundColor: '#ffc107',
+                        pointRadius: 10,
+                        pointStyle: 'crossRot'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'x'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'y'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                }
+            }
+        });
+    }
+
+    function setupEventListeners() {
+        // Form submission
+        document.getElementById('optimizationForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            runOptimization();
+        });
+
+        // Reset button
+        document.getElementById('resetForm').addEventListener('click', function () {
+            resetForm();
+        });
+
+        // Event listener para ejercicios predefinidos
+        document.getElementById('exerciseSelect').addEventListener('change', loadExercise);
+    }
+
+    async function runOptimization() {
+        const form = document.getElementById('optimizationForm');
+        const button = document.getElementById('runOptimization');
+        const spinner = document.getElementById('chartSpinner');
+        const status = document.getElementById('chartStatus');
+
+        // Mostrar loading
+        button.disabled = true;
+        spinner.style.display = 'flex';
+        status.style.display = 'none';
+
+        // Recopilar datos del formulario
+        const formData = {
+            method: document.getElementById('method').value,
+            x0: [
+                parseFloat(document.getElementById('x0').value),
+                parseFloat(document.getElementById('y0').value)
+            ],
+            tolerance: parseFloat(document.getElementById('tolerance').value),
+            max_iter: parseInt(document.getElementById('maxIter').value)
+        };
+
+        try {
+            const startTime = performance.now();
+
+            const response = await fetch('/api/run_line_search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const endTime = performance.now();
+
+            if (!response.ok) {
+                throw new Error(`Error ${response.status}: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+
+            // Actualizar gráficos
+            updateCharts(result);
+
+            // Mostrar resultados
+            displayResults(result, endTime - startTime);
+
+            // Actualizar estado
+            status.className = result.converged ?
+                'status-indicator status-converged' :
+                'status-indicator status-failed';
+            status.innerHTML = result.converged ?
+                '<i class="fas fa-check-circle me-1"></i>Convergió' :
+                '<i class="fas fa-exclamation-triangle me-1"></i>No convergió';
+            status.style.display = 'inline-flex';
+
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error ejecutando la optimización: ' + error.message);
+
+            status.className = 'status-indicator status-failed';
+            status.innerHTML = '<i class="fas fa-times-circle me-1"></i>Error';
+            status.style.display = 'inline-flex';
+        } finally {
+            button.disabled = false;
+            spinner.style.display = 'none';
+        }
+    }
+
+    function updateCharts(result) {
+        // Actualizar gráfico de convergencia
+        const iterations = Array.from({ length: result.errors.length }, (_, i) => i);
+        convergenceChart.data.labels = iterations;
+        convergenceChart.data.datasets[0].data = result.errors;
+        convergenceChart.update();
+
+        // Actualizar gráfico de trayectoria
+        const pathData = result.path.map(point => ({ x: point[0], y: point[1] }));
+        trajectoryChart.data.datasets[0].data = pathData;
+        trajectoryChart.data.datasets[1].data = [{ x: result.path[0][0], y: result.path[0][1] }];
+        trajectoryChart.data.datasets[2].data = [{ x: result.x[0], y: result.x[1] }];
+        trajectoryChart.update();
+    }
+
+    function displayResults(result, executionTime) {
+        document.getElementById('optimalPoint').textContent =
+            `(${result.x[0].toFixed(6)}, ${result.x[1].toFixed(6)})`;
+        document.getElementById('optimalValue').textContent =
+            result.errors[result.errors.length - 1].toFixed(8);
+        document.getElementById('iterations').textContent = result.iterations;
+        document.getElementById('converged').innerHTML = result.converged ?
+            '<span class="text-success"><i class="fas fa-check me-1"></i>Sí</span>' :
+            '<span class="text-danger"><i class="fas fa-times me-1"></i>No</span>';
+        document.getElementById('methodUsed').textContent = result.method.replace('_', ' ');
+        document.getElementById('executionTime').textContent = `${executionTime.toFixed(2)} ms`;
+
+        document.getElementById('resultsPanel').style.display = 'block';
+        document.getElementById('resultsPanel').classList.add('fade-in-up');
+    }
+
+    function resetForm() {
+        document.getElementById('optimizationForm').reset();
+        document.getElementById('x0').value = '0.0';
+        document.getElementById('y0').value = '0.0';
+        document.getElementById('tolerance').value = '0.000001';
+        document.getElementById('maxIter').value = '100';
+
+        // Limpiar gráficos
+        convergenceChart.data.labels = [];
+        convergenceChart.data.datasets[0].data = [];
+        convergenceChart.update();
+
+        trajectoryChart.data.datasets[0].data = [];
+        trajectoryChart.data.datasets[1].data = [];
+        trajectoryChart.data.datasets[2].data = [];
+        trajectoryChart.update();
+
+        // Ocultar resultados
+        document.getElementById('resultsPanel').style.display = 'none';
+        document.getElementById('chartStatus').style.display = 'none';
+    }
+
+    function loadExercise() {
+        const exerciseSelect = document.getElementById('exerciseSelect');
+        const selectedExercise = exerciseSelect.value;
+
+        if (!selectedExercise) {
+            return; // No hay ejercicio seleccionado
+        }
+
+        // Definir los ejercicios con sus parámetros
+        const exercises = {
+            ejercicio1: {
+                // Ejercicio 1: min x² - búsqueda unidimensional simple
+                x0: [2.0, 0.0],
+                method: 'golden_section',
+                tolerance: 1e-6,
+                maxIter: 100,
+                description: "Búsqueda unidimensional de min x² desde x=2",
+                expectedResult: "Óptimo: x = 0, Valor: 0"
+            },
+            ejercicio2: {
+                // Ejercicio 2: min x₁² + x₂² con dirección (-1, -1)
+                x0: [3.0, 3.0],
+                method: 'fibonacci_search',
+                tolerance: 1e-6,
+                maxIter: 100,
+                description: "Minimizar x₁² + x₂² desde (3,3) con dirección (-1,-1)",
+                expectedResult: "Óptimo: (0, 0), Valor: 0"
+            },
+            ejercicio3: {
+                // Ejercicio 3: min (x-2)² + (y-1)² con Armijo
+                x0: [0.0, 0.0],
+                method: 'armijo_backtracking',
+                tolerance: 1e-6,
+                maxIter: 100,
+                description: "Minimizar (x-2)² + (y-1)² desde (0,0) con Armijo",
+                expectedResult: "Óptimo: (2, 1), Valor: 0"
+            }
+        };
+
+        const exercise = exercises[selectedExercise];
+        if (exercise) {
+            // Cargar parámetros en el formulario
+            document.getElementById('x0').value = exercise.x0[0];
+            document.getElementById('y0').value = exercise.x0[1];
+            document.getElementById('method').value = exercise.method;
+            document.getElementById('tolerance').value = exercise.tolerance;
+            document.getElementById('maxIter').value = exercise.maxIter;
+
+            // Actualizar información de la función
+            updateFunctionDisplay(exercise);
+        }
+    }
+
+    function updateFunctionDisplay(exercise) {
+        // Buscar un área para mostrar información del ejercicio
+        const infoContainer = document.querySelector('.info-panel, .parameter-control');
+        if (infoContainer) {
+            let infoDiv = infoContainer.querySelector('.exercise-info');
+            if (!infoDiv) {
+                infoDiv = document.createElement('div');
+                infoDiv.className = 'exercise-info mt-3 p-3 bg-light rounded';
+                infoContainer.appendChild(infoDiv);
+            }
+
+            infoDiv.innerHTML = `
+                <h6 class="text-primary mb-2">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Ejercicio Seleccionado
+                </h6>
+                <div class="small">
+                    <p class="mb-1"><strong>Problema:</strong> ${exercise.description}</p>
+                    <p class="mb-0"><strong>Resultado esperado:</strong> ${exercise.expectedResult}</p>
+                </div>
+            `;
+        }
+    }
+</script>
+{% endblock %}

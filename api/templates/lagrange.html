@@ -1,0 +1,1092 @@
+{% extends "base.html" %}
+
+{% block title %}Multiplicadores de Lagrange - Métodos de Optimización{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Inicio</a></li>
+                    <li class="breadcrumb-item active">Multiplicadores de Lagrange</li>
+                </ol>
+            </nav>
+
+            <div class="d-flex align-items-center mb-3">
+                <div class="method-icon bg-secondary bg-gradient text-white rounded-circle me-3">
+                    <i class="fas fa-infinity fa-2x"></i>
+                </div>
+                <div>
+                    <h1 class="mb-1">Multiplicadores de Lagrange</h1>
+                    <p class="text-muted mb-0">Condiciones KKT y optimización dual</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Información Teórica -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-secondary bg-gradient text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-book me-2"></i>
+                        Fundamentos de Multiplicadores de Lagrange
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-3">
+                        Los multiplicadores de Lagrange constituyen una herramienta fundamental para resolver problemas
+                        de optimización con restricciones de igualdad. El método introduce variables duales
+                        (multiplicadores)
+                        que representan el "precio sombra" de cada restricción, proporcionando información económica
+                        valiosa.
+                    </p>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-calculator text-secondary me-2"></i>Lagrangiano</h6>
+                            <div class="formula-box">
+                                $$L(x, \lambda) = f(x) + \sum_{i=1}^m \lambda_i h_i(x)$$
+                            </div>
+                            <p class="small text-muted mt-2">
+                                Donde $\lambda_i$ son los multiplicadores de Lagrange y $h_i(x) = 0$ son las
+                                restricciones de igualdad.
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-equals text-secondary me-2"></i>Condiciones KKT</h6>
+                            <div class="formula-box">
+                                $$\begin{align}
+                                \nabla_x L &= 0 \\
+                                h_i(x) &= 0 \\
+                                \lambda_i &\geq 0 \text{ (si hay desigualdades)}
+                                \end{align}$$
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6><i class="fas fa-lightbulb text-secondary me-2"></i>Interpretación Económica</h6>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="concept-card p-3 border rounded">
+                                        <h6 class="text-secondary">Precio Sombra</h6>
+                                        <p class="small mb-0">$\lambda_i$ representa el cambio marginal del valor óptimo
+                                            respecto al lado derecho de la restricción $i$.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="concept-card p-3 border rounded">
+                                        <h6 class="text-secondary">Sensibilidad</h6>
+                                        <p class="small mb-0">Los multiplicadores indican qué tan "activa" o importante
+                                            es cada restricción en el óptimo.</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="concept-card p-3 border rounded">
+                                        <h6 class="text-secondary">Dualidad</h6>
+                                        <p class="small mb-0">Conecta el problema primal con su formulación dual,
+                                            proporcionando cotas y certificados de optimalidad.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6><i class="fas fa-cogs text-secondary me-2"></i>Métodos Implementados</h6>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="variant-card p-3 border rounded">
+                                        <h6 class="text-secondary">Newton-Lagrange</h6>
+                                        <p class="small mb-2">Resuelve el sistema KKT usando método de Newton.</p>
+                                        <div class="small">$$\begin{bmatrix} \nabla^2 L & A^T \\ A & 0 \end{bmatrix}
+                                            \begin{bmatrix} \Delta x \\ \Delta \lambda \end{bmatrix} = -\begin{bmatrix}
+                                            \nabla_x L \\ h(x) \end{bmatrix}$$</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="variant-card p-3 border rounded">
+                                        <h6 class="text-secondary">Lagrangiano Aumentado</h6>
+                                        <p class="small mb-2">Combina multiplicadores con término de penalización.</p>
+                                        <div class="small">$$L_A = f(x) + \lambda^T h(x) + \frac{\rho}{2} \|h(x)\|^2$$
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="variant-card p-3 border rounded">
+                                        <h6 class="text-secondary">Penalización-Lagrange</h6>
+                                        <p class="small mb-2">Iteración entre multiplicadores y penalización.</p>
+                                        <div class="small">$$\lambda^{k+1} = \lambda^k + \rho h(x^k)$$</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel de Control y Visualizaciones -->
+    <div class="row">
+        <!-- Panel de Control -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm sticky-top">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-sliders-h me-2"></i>
+                        Configuración
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="lagrangeForm">
+                        <!-- Método de Lagrange -->
+                        <div class="mb-3">
+                            <label for="method" class="form-label">Método</label>
+                            <select class="form-select" id="method">
+                                <option value="lagrange_newton">Newton-Lagrange</option>
+                                <option value="augmented_lagrangian">Lagrangiano Aumentado</option>
+                                <option value="penalty_lagrange">Penalización-Lagrange</option>
+                            </select>
+                        </div>
+
+                        <!-- Ejercicios Predefinidos -->
+                        <div class="mb-3">
+                            <label for="exerciseSelect" class="form-label">
+                                <i class="fas fa-book me-1"></i>
+                                Ejercicios Predefinidos
+                            </label>
+                            <select class="form-select" id="exerciseSelect">
+                                <option value="">Personalizar parámetros</option>
+                                <option value="ejercicio1">Ejercicio 1: min x₁² + x₂² s.t. x₁ + x₂ = 2</option>
+                                <option value="ejercicio2">Ejercicio 2: min (x₁-1)² + (x₂-1)² s.t. x₁² + x₂² = 1
+                                </option>
+                                <option value="ejercicio3">Ejercicio 3: min x₁x₂ s.t. x₁ + x₂ = 1, x₁ - x₂ = 0</option>
+                            </select>
+                            <small class="text-muted">Selecciona un ejercicio para cargar sus parámetros</small>
+                        </div>
+
+                        <!-- Tipo de restricción -->
+                        <div class="mb-3">
+                            <label for="constraintType" class="form-label">Tipo de Restricción</label>
+                            <select class="form-select" id="constraintType">
+                                <option value="linear_eq">Lineal Igualdad (x + y = 2)</option>
+                                <option value="nonlinear_eq">No Lineal (x² + y² = 1)</option>
+                                <option value="mixed_constraints">Restricciones Mixtas</option>
+                            </select>
+                        </div>
+
+                        <!-- Punto inicial -->
+                        <div class="mb-3">
+                            <label class="form-label">Punto Inicial</label>
+                            <div class="row">
+                                <div class="col-6">
+                                    <input type="number" class="form-control" id="x0" value="1.5" step="0.1"
+                                        placeholder="x₀">
+                                </div>
+                                <div class="col-6">
+                                    <input type="number" class="form-control" id="y0" value="0.5" step="0.1"
+                                        placeholder="y₀">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Multiplicador inicial -->
+                        <div class="mb-3">
+                            <label for="lambda0" class="form-label">Multiplicador Inicial (λ₀)</label>
+                            <input type="number" class="form-control" id="lambda0" value="0.0" step="0.1">
+                        </div>
+
+                        <!-- Tolerancia -->
+                        <div class="mb-3">
+                            <label for="tolerance" class="form-label">Tolerancia</label>
+                            <select class="form-select" id="tolerance">
+                                <option value="1e-6">1×10⁻⁶ (Estándar)</option>
+                                <option value="1e-4">1×10⁻⁴ (Rápido)</option>
+                                <option value="1e-8">1×10⁻⁸ (Alta precisión)</option>
+                                <option value="1e-10">1×10⁻¹⁰ (Máxima precisión)</option>
+                            </select>
+                        </div>
+
+                        <!-- Iteraciones máximas -->
+                        <div class="mb-3">
+                            <label for="maxIter" class="form-label">Iteraciones Máximas</label>
+                            <input type="number" class="form-control" id="maxIter" value="1000" min="1" max="10000">
+                        </div>
+
+                        <!-- Botones de control -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-secondary">
+                                <i class="fas fa-play me-2"></i>
+                                Ejecutar Lagrange
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
+                                <i class="fas fa-redo me-2"></i>
+                                Reiniciar
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Resultados -->
+                    <div id="results" class="mt-4" style="display: none;">
+                        <div class="alert alert-success">
+                            <h6><i class="fas fa-check-circle me-2"></i>Optimización Completada</h6>
+                            <div id="resultContent"></div>
+                        </div>
+                    </div>
+
+                    <!-- Información adicional -->
+                    <div class="mt-4 p-3 bg-light rounded">
+                        <h6 class="text-secondary mb-2">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Función de Prueba
+                        </h6>
+                        <div class="small">
+                            <p class="mb-1"><strong>Función:</strong> f(x,y) = (x-1)² + (y-2)²</p>
+                            <p class="mb-1"><strong>Mínimo sin restricciones:</strong> (1, 2)</p>
+                            <p class="mb-0"><strong>Valor mínimo:</strong> 0</p>
+                        </div>
+                    </div>
+
+                    <!-- Estado de multiplicadores -->
+                    <div id="multiplierInfo" class="mt-3 p-3 bg-secondary bg-opacity-10 rounded">
+                        <h6 class="text-secondary mb-2">
+                            <i class="fas fa-infinity me-2"></i>
+                            Multiplicadores de Lagrange
+                        </h6>
+                        <div id="multiplierDescription" class="small">
+                            <p class="mb-1">Los multiplicadores λᵢ representan el precio sombra de cada restricción.</p>
+                            <p class="mb-0">Un valor alto indica que la restricción es muy "activa" en el óptimo.</p>
+                        </div>
+                        <div id="currentMultipliers" class="mt-2" style="display: none;">
+                            <strong>Multiplicadores actuales:</strong>
+                            <div id="multiplierValues"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visualizaciones -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#convergenceTab" role="tab">
+                                <i class="fas fa-chart-line me-2"></i>Convergencia
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#trajectoryTab" role="tab">
+                                <i class="fas fa-route me-2"></i>Trayectoria
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#multipliersTab" role="tab">
+                                <i class="fas fa-balance-scale me-2"></i>Multiplicadores
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#surfaceTab" role="tab">
+                                <i class="fas fa-cube me-2"></i>Superficie 3D
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content">
+                        <!-- Gráfico de Convergencia -->
+                        <div class="tab-pane fade show active" id="convergenceTab" role="tabpanel">
+                            <div class="chart-container">
+                                <canvas id="convergenceChart" width="400" height="300"></canvas>
+                            </div>
+                            <div class="mt-3">
+                                <p class="small text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Evolución del valor de la función objetivo y violación de restricciones.
+                                    Los métodos de Lagrange buscan satisfacer simultáneamente optimalidad y
+                                    factibilidad.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Gráfico de Trayectoria -->
+                        <div class="tab-pane fade" id="trajectoryTab" role="tabpanel">
+                            <div class="chart-container">
+                                <canvas id="trajectoryChart" width="400" height="300"></canvas>
+                            </div>
+                            <div class="mt-3">
+                                <p class="small text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Trayectoria del algoritmo con curvas de nivel y restricciones.
+                                    El óptimo se encuentra donde el gradiente es perpendicular a la restricción.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Evolución de Multiplicadores -->
+                        <div class="tab-pane fade" id="multipliersTab" role="tabpanel">
+                            <div class="chart-container">
+                                <canvas id="multipliersChart" width="400" height="300"></canvas>
+                            </div>
+                            <div class="mt-3">
+                                <p class="small text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Evolución de los multiplicadores de Lagrange durante la optimización.
+                                    Los valores finales indican la sensibilidad del óptimo a cambios en las
+                                    restricciones.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Superficie 3D -->
+                        <div class="tab-pane fade" id="surfaceTab" role="tabpanel">
+                            <div id="surface3D" style="height: 500px;"></div>
+                            <div class="mt-3">
+                                <p class="small text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Superficie 3D del Lagrangiano. Los multiplicadores de Lagrange modifican
+                                    la función objetivo para incorporar las restricciones de manera natural.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Variables globales para los gráficos
+    let convergenceChart = null;
+    let trajectoryChart = null;
+    let multipliersChart = null;
+
+    // Datos de ejemplo para inicialización
+    const sampleData = {
+        x: [1, 1],
+        path: [[1.5, 0.5], [1.3, 0.7], [1.1, 0.9], [1.05, 0.95], [1, 1]],
+        errors: [1.25, 0.68, 0.18, 0.05, 0.0],
+        iterations: 4,
+        converged: true,
+        method: 'lagrange_newton',
+        multipliers: [0.0, -1.2, -2.1, -2.8, -3.0] // Evolución de multiplicadores
+    };
+
+    // Inicialización cuando la página esté lista
+    document.addEventListener('DOMContentLoaded', function () {
+        initializeCharts();
+        updateChartsWithData(sampleData);
+        updateConstraintInfo();
+
+        // Event listener para cambio de restricción
+        document.getElementById('constraintType').addEventListener('change', updateConstraintInfo);
+
+        // Event listener para ejercicios predefinidos
+        document.getElementById('exerciseSelect').addEventListener('change', loadExercise);
+    });
+
+    // Configuración del formulario
+    document.getElementById('lagrangeForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        runLagrangeOptimization();
+    });
+
+    function runLagrangeOptimization() {
+        const formData = {
+            method: document.getElementById('method').value,
+            constraint_type: document.getElementById('constraintType').value,
+            x0: [
+                parseFloat(document.getElementById('x0').value),
+                parseFloat(document.getElementById('y0').value)
+            ],
+            lambda0: parseFloat(document.getElementById('lambda0').value),
+            tolerance: parseFloat(document.getElementById('tolerance').value),
+            max_iter: parseInt(document.getElementById('maxIter').value)
+        };
+
+        // Mostrar indicador de carga
+        const submitBtn = document.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Ejecutando...';
+        submitBtn.disabled = true;
+
+        fetch('/api/run_lagrange', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                updateChartsWithData(data);
+                showResults(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error en la optimización: ' + error.message);
+            })
+            .finally(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
+    }
+
+    function updateConstraintInfo() {
+        const constraintType = document.getElementById('constraintType').value;
+        const infoDiv = document.getElementById('multiplierDescription');
+
+        let description = '';
+
+        switch (constraintType) {
+            case 'linear_eq':
+                description = `
+                <p class="mb-1"><strong>Restricción:</strong> x + y = 2</p>
+                <p class="mb-1"><strong>Interpretación:</strong> λ indica el cambio en f* si el RHS cambia de 2 a 2+ε</p>
+                <p class="mb-0"><strong>Geometría:</strong> Óptimo en la intersección del gradiente con la línea</p>
+            `;
+                break;
+            case 'nonlinear_eq':
+                description = `
+                <p class="mb-1"><strong>Restricción:</strong> x² + y² = 1 (círculo unitario)</p>
+                <p class="mb-1"><strong>Interpretación:</strong> λ indica sensibilidad al radio del círculo</p>
+                <p class="mb-0"><strong>Geometría:</strong> Gradiente tangente al círculo en el óptimo</p>
+            `;
+                break;
+            case 'mixed_constraints':
+                description = `
+                <p class="mb-1"><strong>Restricciones:</strong> x + y = 2, x ≥ 0, y ≥ 0</p>
+                <p class="mb-1"><strong>Interpretación:</strong> Múltiples λᵢ para cada restricción activa</p>
+                <p class="mb-0"><strong>KKT:</strong> Condiciones de complementariedad aplicables</p>
+            `;
+                break;
+        }
+
+        infoDiv.innerHTML = description;
+    }
+
+    function loadExercise() {
+        const exerciseSelect = document.getElementById('exerciseSelect');
+        const selectedExercise = exerciseSelect.value;
+
+        if (!selectedExercise) {
+            return; // No hay ejercicio seleccionado
+        }
+
+        // Definir los ejercicios con sus parámetros
+        const exercises = {
+            ejercicio1: {
+                // Ejercicio 1: min x₁² + x₂² s.t. x₁ + x₂ = 2
+                x0: [1.0, 1.0],
+                lambda0: 0.0,
+                constraintType: 'linear_eq',
+                method: 'lagrange_newton',
+                tolerance: 1e-6,
+                maxIter: 1000,
+                description: "Minimizar x₁² + x₂² sujeto a x₁ + x₂ = 2",
+                expectedResult: "Óptimo: (1, 1), Valor: 2, λ = -2"
+            },
+            ejercicio2: {
+                // Ejercicio 2: min (x₁-1)² + (x₂-1)² s.t. x₁² + x₂² = 1
+                x0: [0.7, 0.7],
+                lambda0: 0.0,
+                constraintType: 'nonlinear_eq',
+                method: 'lagrange_newton',
+                tolerance: 1e-6,
+                maxIter: 1000,
+                description: "Minimizar (x₁-1)² + (x₂-1)² sujeto a x₁² + x₂² = 1",
+                expectedResult: "Óptimo: (1/√2, 1/√2), Valor: ≈ 0.59"
+            },
+            ejercicio3: {
+                // Ejercicio 3: min x₁x₂ s.t. x₁ + x₂ = 1, x₁ - x₂ = 0
+                x0: [0.5, 0.5],
+                lambda0: 0.0,
+                constraintType: 'mixed_constraints',
+                method: 'augmented_lagrangian',
+                tolerance: 1e-6,
+                maxIter: 1000,
+                description: "Minimizar x₁x₂ sujeto a x₁ + x₂ = 1, x₁ - x₂ = 0",
+                expectedResult: "Óptimo: (0.5, 0.5), Valor: 0.25"
+            }
+        };
+
+        const exercise = exercises[selectedExercise];
+        if (exercise) {
+            // Cargar parámetros en el formulario
+            document.getElementById('x0').value = exercise.x0[0];
+            document.getElementById('y0').value = exercise.x0[1];
+            document.getElementById('lambda0').value = exercise.lambda0;
+            document.getElementById('constraintType').value = exercise.constraintType;
+            document.getElementById('method').value = exercise.method;
+            document.getElementById('tolerance').value = exercise.tolerance;
+            document.getElementById('maxIter').value = exercise.maxIter;
+
+            // Actualizar la información de restricciones
+            updateConstraintInfo();
+
+            // Actualizar la información de la función
+            updateFunctionDisplay(exercise);
+        }
+    }
+
+    function updateFunctionDisplay(exercise) {
+        const infoDiv = document.querySelector('.mt-4.p-3.bg-light.rounded');
+        if (infoDiv) {
+            infoDiv.innerHTML = `
+                <h6 class="text-secondary mb-2">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Función y Restricción del Ejercicio
+                </h6>
+                <div class="small">
+                    <p class="mb-1"><strong>Problema:</strong> ${exercise.description}</p>
+                    <p class="mb-0"><strong>Resultado esperado:</strong> ${exercise.expectedResult}</p>
+                </div>
+            `;
+        }
+    }
+
+    function initializeCharts() {
+        // Inicializar gráfico de convergencia
+        const ctxConv = document.getElementById('convergenceChart').getContext('2d');
+        convergenceChart = new Chart(ctxConv, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Valor de la función',
+                    data: [],
+                    borderColor: '#6c757d',
+                    backgroundColor: 'rgba(108, 117, 125, 0.1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#6c757d',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    fill: true,
+                    tension: 0.4
+                }, {
+                    label: 'Violación de restricciones',
+                    data: [],
+                    borderColor: '#dc3545',
+                    backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#dc3545',
+                    pointRadius: 3,
+                    fill: false,
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Convergencia - Multiplicadores de Lagrange'
+                    }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'f(x, y)'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Violación'
+                        },
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Iteración'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Inicializar gráfico de trayectoria
+        const ctxTraj = document.getElementById('trajectoryChart').getContext('2d');
+        trajectoryChart = new Chart(ctxTraj, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Trayectoria',
+                    data: [],
+                    borderColor: '#6c757d',
+                    backgroundColor: '#6c757d',
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    showLine: true,
+                    borderWidth: 2
+                }, {
+                    label: 'Punto inicial',
+                    data: [],
+                    borderColor: '#ffc107',
+                    backgroundColor: '#ffc107',
+                    pointRadius: 8,
+                    pointStyle: 'triangle'
+                }, {
+                    label: 'Punto final',
+                    data: [],
+                    borderColor: '#28a745',
+                    backgroundColor: '#28a745',
+                    pointRadius: 8,
+                    pointStyle: 'star'
+                }, {
+                    label: 'Restricción',
+                    data: [],
+                    borderColor: '#dc3545',
+                    backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                    borderWidth: 3,
+                    pointRadius: 0,
+                    showLine: true,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Trayectoria con Restricciones de Igualdad'
+                    }
+                },
+                scales: {
+                    x: {
+                        min: -1,
+                        max: 3,
+                        title: {
+                            display: true,
+                            text: 'x'
+                        }
+                    },
+                    y: {
+                        min: -1,
+                        max: 3,
+                        title: {
+                            display: true,
+                            text: 'y'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Inicializar gráfico de multiplicadores
+        const ctxMult = document.getElementById('multipliersChart').getContext('2d');
+        multipliersChart = new Chart(ctxMult, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'λ₁ (Multiplicador 1)',
+                    data: [],
+                    borderColor: '#007bff',
+                    backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#007bff',
+                    fill: false
+                }, {
+                    label: 'λ₂ (Multiplicador 2)',
+                    data: [],
+                    borderColor: '#28a745',
+                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#28a745',
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Evolución de Multiplicadores de Lagrange'
+                    }
+                },
+                scales: {
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'λ (Multiplicador)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Iteración'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Inicializar superficie 3D
+        initializeSurface3D();
+    }
+
+    function initializeSurface3D() {
+        if (typeof Plotly === 'undefined') {
+            console.warn('Plotly no está disponible para la visualización 3D');
+            document.getElementById('surface3D').innerHTML =
+                '<div class="alert alert-warning">Plotly.js no está cargado. La visualización 3D no está disponible.</div>';
+            return;
+        }
+
+        // Crear datos de superficie para la función f(x,y) = (x-1)² + (y-2)²
+        const x = [];
+        const y = [];
+        const z = [];
+
+        for (let i = -1; i <= 3; i += 0.2) {
+            x.push(i);
+        }
+        for (let j = -1; j <= 3; j += 0.2) {
+            y.push(j);
+        }
+
+        for (let i = 0; i < y.length; i++) {
+            z[i] = [];
+            for (let j = 0; j < x.length; j++) {
+                z[i][j] = Math.pow(x[j] - 1, 2) + Math.pow(y[i] - 2, 2);
+            }
+        }
+
+        const layout = {
+            title: 'Superficie 3D - Lagrangiano',
+            scene: {
+                xaxis: { title: 'x' },
+                yaxis: { title: 'y' },
+                zaxis: { title: 'L(x,y,λ)' },
+                camera: {
+                    eye: { x: 1.5, y: 1.5, z: 1.5 }
+                }
+            },
+            margin: { l: 0, r: 0, b: 0, t: 40 }
+        };
+
+        const surface = {
+            x: x,
+            y: y,
+            z: z,
+            type: 'surface',
+            colorscale: 'Greys',
+            opacity: 0.8,
+            name: 'L(x,y,λ)'
+        };
+
+        Plotly.newPlot('surface3D', [surface], layout);
+    }
+
+    function updateChartsWithData(data) {
+        // Actualizar gráfico de convergencia
+        if (convergenceChart && data.errors) {
+            const iterations = Array.from({ length: data.errors.length }, (_, i) => i);
+            convergenceChart.data.labels = iterations;
+            convergenceChart.data.datasets[0].data = data.errors;
+
+            // Simular violación de restricciones (decrece hacia 0)
+            const violations = data.errors.map((err, i) => Math.max(0, err * 0.1 * (data.errors.length - i) / data.errors.length));
+            convergenceChart.data.datasets[1].data = violations;
+
+            convergenceChart.update();
+        }
+
+        // Actualizar gráfico de trayectoria
+        if (trajectoryChart && data.path) {
+            const trajectoryData = data.path.map(point => ({ x: point[0], y: point[1] }));
+            trajectoryChart.data.datasets[0].data = trajectoryData;
+
+            if (data.path.length > 0) {
+                trajectoryChart.data.datasets[1].data = [{ x: data.path[0][0], y: data.path[0][1] }];
+                trajectoryChart.data.datasets[2].data = [{ x: data.path[data.path.length - 1][0], y: data.path[data.path.length - 1][1] }];
+            }
+
+            // Agregar línea de restricción
+            updateConstraintLine();
+
+            trajectoryChart.update();
+        }
+
+        // Actualizar gráfico de multiplicadores
+        updateMultipliersChart(data);
+
+        // Actualizar superficie 3D
+        updateSurface3D(data);
+    }
+
+    function updateConstraintLine() {
+        const constraintType = document.getElementById('constraintType').value;
+        let constraintPoints = [];
+
+        switch (constraintType) {
+            case 'linear_eq':
+                // x + y = 2
+                for (let x = -1; x <= 3; x += 0.1) {
+                    constraintPoints.push({ x: x, y: 2 - x });
+                }
+                break;
+            case 'nonlinear_eq':
+                // x² + y² = 1
+                for (let theta = 0; theta <= 2 * Math.PI; theta += 0.1) {
+                    constraintPoints.push({ x: Math.cos(theta), y: Math.sin(theta) });
+                }
+                break;
+            case 'mixed_constraints':
+                // x + y = 2 con x,y >= 0
+                for (let x = 0; x <= 2; x += 0.1) {
+                    const y = 2 - x;
+                    if (y >= 0) {
+                        constraintPoints.push({ x: x, y: y });
+                    }
+                }
+                break;
+        }
+
+        trajectoryChart.data.datasets[3].data = constraintPoints;
+    }
+
+    function updateMultipliersChart(data) {
+        if (!multipliersChart) return;
+
+        const iterations = Array.from({ length: data.errors.length }, (_, i) => i);
+
+        // Usar multiplicadores del resultado o simular
+        let multipliers1 = data.multipliers || data.errors.map((_, i) => -i * 0.5);
+        let multipliers2 = data.multipliers ? data.multipliers.map(m => m * 0.8) : data.errors.map((_, i) => -i * 0.3);
+
+        multipliersChart.data.labels = iterations;
+        multipliersChart.data.datasets[0].data = multipliers1;
+        multipliersChart.data.datasets[1].data = multipliers2.slice(0, multipliers1.length);
+        multipliersChart.update();
+
+        // Mostrar valores finales de multiplicadores
+        if (multipliers1.length > 0) {
+            document.getElementById('currentMultipliers').style.display = 'block';
+            document.getElementById('multiplierValues').innerHTML = `
+            <div class="small mt-1">
+                <span class="badge bg-primary">λ₁ = ${multipliers1[multipliers1.length - 1].toFixed(3)}</span>
+                <span class="badge bg-success ms-1">λ₂ = ${multipliers2[multipliers2.length - 1].toFixed(3)}</span>
+            </div>
+        `;
+        }
+    }
+
+    function updateSurface3D(data) {
+        if (typeof Plotly === 'undefined' || !data.path) {
+            return;
+        }
+
+        try {
+            // Datos de la trayectoria
+            const pathX = data.path.map(point => point[0]);
+            const pathY = data.path.map(point => point[1]);
+            const pathZ = data.path.map(point => Math.pow(point[0] - 1, 2) + Math.pow(point[1] - 2, 2));
+
+            // Trace de la trayectoria
+            const trajectoryTrace = {
+                x: pathX,
+                y: pathY,
+                z: pathZ,
+                type: 'scatter3d',
+                mode: 'lines+markers',
+                line: { color: '#6c757d', width: 6 },
+                marker: { size: 5, color: '#6c757d' },
+                name: 'Trayectoria Lagrange'
+            };
+
+            // Punto inicial
+            const startTrace = {
+                x: [pathX[0]],
+                y: [pathY[0]],
+                z: [pathZ[0]],
+                type: 'scatter3d',
+                mode: 'markers',
+                marker: { size: 10, color: '#ffc107', symbol: 'diamond' },
+                name: 'Inicio'
+            };
+
+            // Punto final
+            const endTrace = {
+                x: [pathX[pathX.length - 1]],
+                y: [pathY[pathY.length - 1]],
+                z: [pathZ[pathZ.length - 1]],
+                type: 'scatter3d',
+                mode: 'markers',
+                marker: { size: 12, color: '#28a745', symbol: 'star' },
+                name: 'Óptimo KKT'
+            };
+
+            // Agregar los nuevos traces
+            Plotly.addTraces('surface3D', [trajectoryTrace, startTrace, endTrace]);
+
+        } catch (error) {
+            console.error('Error actualizando superficie 3D:', error);
+        }
+    }
+
+    function showResults(data) {
+        const resultsDiv = document.getElementById('results');
+        const contentDiv = document.getElementById('resultContent');
+
+        const convergedText = data.converged ?
+            '<span class="text-success"><i class="fas fa-check me-1"></i>Convergió</span>' :
+            '<span class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>No convergió</span>';
+
+        // Simular multiplicadores finales
+        const finalMultiplier = data.multipliers ? data.multipliers[data.multipliers.length - 1] : -2.5;
+
+        contentDiv.innerHTML = `
+        <div class="row g-2">
+            <div class="col-6">
+                <strong>Punto óptimo:</strong><br>
+                <code>(${data.x[0].toFixed(6)}, ${data.x[1].toFixed(6)})</code>
+            </div>
+            <div class="col-6">
+                <strong>Valor óptimo:</strong><br>
+                <code>${data.errors[data.errors.length - 1].toExponential(3)}</code>
+            </div>
+            <div class="col-6">
+                <strong>Iteraciones:</strong><br>
+                <code>${data.iterations}</code>
+            </div>
+            <div class="col-6">
+                <strong>Estado:</strong><br>
+                ${convergedText}
+            </div>
+            <div class="col-12">
+                <strong>Multiplicador final:</strong><br>
+                <code>λ = ${finalMultiplier.toFixed(6)}</code>
+                <div class="small text-muted mt-1">
+                    Precio sombra: cambio marginal del óptimo por unidad de relajación de la restricción
+                </div>
+            </div>
+        </div>
+    `;
+
+        resultsDiv.style.display = 'block';
+    }
+
+    function resetForm() {
+        document.getElementById('method').value = 'lagrange_newton';
+        document.getElementById('constraintType').value = 'linear_eq';
+        document.getElementById('x0').value = '1.5';
+        document.getElementById('y0').value = '0.5';
+        document.getElementById('lambda0').value = '0.0';
+        document.getElementById('tolerance').value = '1e-6';
+        document.getElementById('maxIter').value = '1000';
+
+        document.getElementById('results').style.display = 'none';
+        document.getElementById('currentMultipliers').style.display = 'none';
+        updateConstraintInfo();
+
+        // Reinicializar con datos de ejemplo
+        updateChartsWithData(sampleData);
+
+        // Limpiar trazas adicionales en 3D
+        if (typeof Plotly !== 'undefined') {
+            try {
+                const plotDiv = document.getElementById('surface3D');
+                if (plotDiv && plotDiv.data && plotDiv.data.length > 1) {
+                    Plotly.deleteTraces('surface3D', [1, 2, 3]);
+                }
+            } catch (error) {
+                console.error('Error limpiando superficie 3D:', error);
+            }
+        }
+    }
+</script>
+
+<style>
+    .method-icon {
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .formula-box {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #6c757d;
+        text-align: center;
+        font-size: 1.1em;
+    }
+
+    .variant-card {
+        background: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+
+    .variant-card:hover {
+        background: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .concept-card {
+        background: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+
+    .concept-card:hover {
+        background: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .chart-container {
+        position: relative;
+        height: 400px;
+    }
+
+    .sticky-top {
+        top: 20px;
+    }
+
+    #surface3D {
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+    }
+</style>
+{% endblock %}
