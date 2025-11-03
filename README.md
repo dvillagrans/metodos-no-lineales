@@ -89,16 +89,19 @@ La aplicación está desplegada y disponible en:
 ### 💻 Desarrollo Local
 
 **Método 1: Script de desarrollo**
+
 ```bash
 python dev_server.py
 ```
 
 **Método 2: App principal**
+
 ```bash
 python app.py
 ```
 
 **Método 3: Flask CLI**
+
 ```bash
 flask run --host=0.0.0.0 --port=5000
 ```
@@ -174,6 +177,7 @@ La aplicación está configurada para deployment automático en Render:
 ### Vercel
 
 También está configurada para Vercel (serverless):
+
 - Configuración en `vercel.json`
 - Handler en `api/handler.py`
 
@@ -328,16 +332,18 @@ Este proyecto es de código abierto y está disponible bajo la licencia MIT.
 
 ---
 
-## 🎉 ¡Listo para usar!
+## 🎉 ¡Listo para usar
 
 Tu aplicación de métodos de optimización está completamente configurada y lista para ejecutar.
 
 **🌐 Acceso en producción:**
+
 ```
 https://metodos-no-lineales.onrender.com/
 ```
 
 **💻 Desarrollo local:**
+
 ```bash
 pip install -r requirements.txt && python dev_server.py
 ```
