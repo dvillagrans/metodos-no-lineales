@@ -2,6 +2,12 @@
 
 Una aplicación Flask interactiva que implementa y visualiza los principales algoritmos de optimización no lineal con una interfaz moderna y dinámica.
 
+## 🌐 Demo en Vivo
+
+**🎯 [Ver aplicación en producción](https://metodos-no-lineales.onrender.com/)**
+
+La aplicación está desplegada en Render y disponible para uso inmediato.
+
 ## 📸 Vista Previa
 
 ![Aplicación de Métodos de Optimización No Lineal](499_1x_shots_so.png)
@@ -75,14 +81,24 @@ Una aplicación Flask interactiva que implementa y visualiza los principales alg
 
 ## 🚀 Ejecución de la Aplicación
 
-### Desarrollo
+### 🌐 Producción (Render)
 
+La aplicación está desplegada y disponible en:
+**[https://metodos-no-lineales.onrender.com/](https://metodos-no-lineales.onrender.com/)**
+
+### 💻 Desarrollo Local
+
+**Método 1: Script de desarrollo**
+```bash
+python dev_server.py
+```
+
+**Método 2: App principal**
 ```bash
 python app.py
 ```
 
-### Producción
-
+**Método 3: Flask CLI**
 ```bash
 flask run --host=0.0.0.0 --port=5000
 ```
@@ -145,7 +161,32 @@ project/
 - Manejo de errores robusto
 - Indicadores de estado visual
 
-## 🔧 APIs Disponibles
+## � Deployment
+
+### Render
+
+La aplicación está configurada para deployment automático en Render:
+
+1. **Configuración**: Ver `render.yaml` para la configuración de servicios
+2. **URL de producción**: [https://metodos-no-lineales.onrender.com/](https://metodos-no-lineales.onrender.com/)
+3. **Documentación completa**: Ver `DEPLOY.md` para guía detallada de deployment
+
+### Vercel
+
+También está configurada para Vercel (serverless):
+- Configuración en `vercel.json`
+- Handler en `api/handler.py`
+
+### Docker
+
+Incluye `Dockerfile` para deployment containerizado:
+
+```bash
+docker build -t metodos-no-lineales .
+docker run -p 5000:5000 metodos-no-lineales
+```
+
+## �🔧 APIs Disponibles
 
 ### Búsqueda de Línea
 
@@ -218,11 +259,13 @@ python ejemplo_completo.py
 
 ### Mejoras Técnicas
 
+- [x] Despliegue en producción (Render)
+- [x] Configuración Docker
 - [ ] Tests unitarios
 - [ ] Documentación API con Swagger
 - [ ] Base de datos para histórico
 - [ ] Autenticación de usuarios
-- [ ] Despliegue con Docker
+- [ ] CI/CD automatizado
 
 ## 👨‍💻 Uso Avanzado
 
@@ -271,16 +314,36 @@ Para problemas o sugerencias:
 2. Verificar la implementación en `metodos/`
 3. Comprobar las APIs en `app.py`
 
+## 📚 Tecnologías Utilizadas
+
+- **Backend**: Flask (Python)
+- **Frontend**: Bootstrap 5, Chart.js, MathJax
+- **Matemáticas**: NumPy, SciPy
+- **Deployment**: Render (producción), Vercel (serverless), Docker
+- **Servidor**: Gunicorn (WSGI)
+
+## 📄 Licencia
+
+Este proyecto es de código abierto y está disponible bajo la licencia MIT.
+
 ---
 
-## 🎉 ¡Listo para usar
+## 🎉 ¡Listo para usar!
 
 Tu aplicación de métodos de optimización está completamente configurada y lista para ejecutar.
 
-**Comando rápido para empezar:**
+**🌐 Acceso en producción:**
+```
+https://metodos-no-lineales.onrender.com/
+```
 
+**💻 Desarrollo local:**
 ```bash
-pip install -r requirements.txt && python app.py
+pip install -r requirements.txt && python dev_server.py
 ```
 
 Luego visita: `http://localhost:5000` 🚀
+
+---
+
+**Desarrollado con ❤️ para el aprendizaje de Optimización No Lineal**
